@@ -1,9 +1,12 @@
 package com.mb.finance;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.mb.finance.entities.Income;
 import com.mb.finance.service.IncomeService;
@@ -12,8 +15,11 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -27,6 +33,8 @@ import static com.mb.finance.config.Constants.USER_ID;
 @Route(value = "showincome", layout = MainLayout.class)
 @PageTitle("Finance : Income")
 public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserver {
+	
+	public static final String INCOME_PAGE_NUMBER= "incomePageNumber";
 
 	@Autowired
 	IncomeService incomeService;
@@ -36,6 +44,12 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 	TextField totalIncomeField = new TextField("Total Income for current month");
 
 	Grid<Income> incomeGrid = new Grid<>(Income.class);
+	
+	Button currentButton = new Button("Latest");
+	
+	Button arrowLeftButton = new Button("Previous", new Icon(VaadinIcon.ARROW_LEFT));
+
+	Button arrowRightButton = new Button("Next", new Icon(VaadinIcon.ARROW_RIGHT));
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent arg0) {
@@ -47,6 +61,8 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 	}
 
 	public ShowIncomeView(IncomeService incomeService) {
+		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
+		VaadinSession.getCurrent().setAttribute(INCOME_PAGE_NUMBER, 0);
 		incomeGrid.setColumns("amount", "incomeType", "incomeDate", "incomeOccurance", "depositedIn", "comments");
 		updateGridColumnSize();
 		incomeGrid.setWidth("70%");
@@ -56,8 +72,41 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 		totalIncomeField.setReadOnly(true);
 		totalIncomeField.setWidth("20%");
 
-		updateIncomeGrid(incomeService);
-		add(pageTitle, totalIncomeField, incomeGrid);
+		Pageable pageable = PageRequest.of(0, 20);
+		List<Income> incomeList = incomeService.getAllIncomeByUserId(userId,pageable);
+		updateIncomeGrid(incomeList);
+		
+		currentButton.addClickListener(event -> {
+			Pageable latestPageable = PageRequest.of(0, 20);
+			List<Income> updatedIncomeList = incomeService.getAllIncomeByUserId(userId, latestPageable);
+			updateIncomeGrid(updatedIncomeList);
+		});
+		
+		arrowLeftButton.addClickListener(event -> {
+			Integer incomePageNumber = (Integer) VaadinSession.getCurrent().getAttribute(INCOME_PAGE_NUMBER);
+			Integer updatedIncomePageNumber = incomePageNumber - 1;
+			Pageable latestPageable = PageRequest.of(updatedIncomePageNumber < 0 ? 0 : updatedIncomePageNumber , 20);
+			List<Income> updatedIncomeList = incomeService.getAllIncomeByUserId(userId, latestPageable);
+			updateIncomeGrid(updatedIncomeList);
+			VaadinSession.getCurrent().setAttribute(INCOME_PAGE_NUMBER, updatedIncomePageNumber < 0 ? 0 : updatedIncomePageNumber);
+		});
+		
+		arrowRightButton.addClickListener(event -> {
+			Integer incomePageNumber = (Integer) VaadinSession.getCurrent().getAttribute(INCOME_PAGE_NUMBER);
+			Integer updatedIncomePageNumber = incomePageNumber + 1;
+			Pageable latestPageable = PageRequest.of(updatedIncomePageNumber < 0 ? 0 : updatedIncomePageNumber , 20);
+			List<Income> updatedIncomeList = incomeService.getAllIncomeByUserId(userId, latestPageable);
+			updateIncomeGrid(updatedIncomeList);
+			VaadinSession.getCurrent().setAttribute(INCOME_PAGE_NUMBER, updatedIncomePageNumber < 0 ? 0 : updatedIncomePageNumber);
+		});
+
+		HorizontalLayout hl1 = new HorizontalLayout();
+		hl1.add(currentButton,arrowLeftButton,arrowRightButton);
+		
+		VerticalLayout vl1 = new VerticalLayout();
+		vl1.add(hl1,incomeGrid);
+		
+		add(pageTitle, totalIncomeField, vl1);
 	}
 
 	private Button createRemoveButton(Income item, IncomeService incomeService) {
@@ -74,7 +123,8 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 
 		buttonInside2.addClickListener(event -> {
 			incomeService.deleteIncome(item);
-			updateIncomeGrid(incomeService);
+			List<Income> incomeList = incomeService.getAllIncomeByUserId((String) VaadinSession.getCurrent().getAttribute(USER_ID));
+			updateIncomeGrid(incomeList);
 			updateTotalIncome(incomeService);
 			notification.close();
 			Notification successNotification = new Notification("Income successfully deleted", 5000, Position.MIDDLE);
@@ -96,9 +146,8 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 		incomeGrid.getColumnByKey("comments").setAutoWidth(true);
 	}
 
-	public void updateIncomeGrid(IncomeService incomeService) {
-		incomeGrid.setItems(
-				incomeService.getAllIncomeByUserId((String) VaadinSession.getCurrent().getAttribute(USER_ID)));
+	public void updateIncomeGrid(List<Income> incomeList) {
+		incomeGrid.setItems(incomeList);
 		updateGridColumnSize();
 	}
 

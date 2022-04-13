@@ -2,10 +2,13 @@ package com.mb.finance;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.mb.finance.config.TransactionDto;
 import com.mb.finance.config.TransactionType;
@@ -30,7 +33,7 @@ import static com.mb.finance.config.Constants.USER_ID;
 @Route(value = "showbalancesheet", layout = MainLayout.class)
 @PageTitle("Finance : Balance Sheet")
 public class BalanceSheetView extends VerticalLayout implements BeforeEnterObserver {
-
+	
 	@Autowired
 	IncomeService incomeService;
 
@@ -42,6 +45,7 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 	TextField netWealth = new TextField("Net Wealth");
 
 	Grid<TransactionDto> balanceSheetGrid = new Grid<>(TransactionDto.class);
+	
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent arg0) {
@@ -54,6 +58,8 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 
 	public BalanceSheetView( ExpenseService expenseService,
 			IncomeService incomeService) {
+		VaadinSession.getCurrent().setAttribute("currentPageNumber", 1);
+		
 		balanceSheetGrid.setColumns("amount", "transactionType", "transactionDate", "transactionDestination", "comments");
 		updateGridColumnSize();
 		balanceSheetGrid.setWidth("70%");
@@ -63,7 +69,7 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		netWealth.setReadOnly(true);
 		updateNetWealth(expenseService, incomeService);
 
-		add(pageTitle, netWealth, balanceSheetGrid);
+		add(pageTitle, netWealth,balanceSheetGrid );
 	}
 
 	public void updateGridColumnSize() {
@@ -77,39 +83,50 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 	public void updateBalanceSheetGrid(ExpenseService expenseService, IncomeService incomeService) {
 		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
 		
-		List<TransactionDto> transactionList = new ArrayList<TransactionDto>();
+		List<TransactionDto> transactionList = new ArrayList<TransactionDto>();		
+		Pageable pageable = PageRequest.of(0, 20);
 		
 		//get all income and convert to transactionDto
-		List<Income> incomeList = incomeService.getAllIncomeByUserId(userId);
-		incomeList.forEach(e->{
+		List<Income> incomeList = incomeService.getAllIncomeByUserId(userId, pageable);
+		for(Income income : incomeList)
+		{
 			TransactionDto transaction = new TransactionDto();
-			transaction.setAmount(e.getAmount());
-			transaction.setComments(e.getComments());
-			transaction.setCreationDate(e.getCreationDate());
-			transaction.setTransactionDate(e.getIncomeDate());
-			transaction.setTransactionDestination(e.getDepositedIn());
-			transaction.setTransactionOccurance(e.getIncomeOccurance());
+			transaction.setAmount(income.getAmount());
+			transaction.setComments(income.getComments());
+			transaction.setCreationDate(income.getCreationDate());
+			transaction.setTransactionDate(income.getIncomeDate());
+			transaction.setTransactionDestination(income.getDepositedIn());
+			transaction.setTransactionOccurance(income.getIncomeOccurance());
 			transaction.setTransactionType(TransactionType.INCOME);
-			transaction.setUserId(e.getUserId());
+			transaction.setUserId(income.getUserId());
 			
 			transactionList.add(transaction);
-		});
+		}
 		
 		//get all expenses and convert to transactionDto
-		List<Expense> expenseList = expenseService.getExpensesByUserId(userId);
-		expenseList.forEach(e->{
+		List<Expense> expenseList = expenseService.getExpensesByUserId(userId, pageable);
+		for(Expense expense: expenseList)
+		{
 			TransactionDto transaction = new TransactionDto();
-			transaction.setAmount(e.getAmount());
-			transaction.setComments(e.getComments());
-			transaction.setCreationDate(e.getCreationDate());
-			transaction.setTransactionDate(e.getExpenseDate());
-			transaction.setTransactionDestination(e.getWithdrawnFrom());
-			transaction.setTransactionOccurance(e.getExpenseOccurance());
+			transaction.setAmount(expense.getAmount());
+			transaction.setComments(expense.getComments());
+			transaction.setCreationDate(expense.getCreationDate());
+			transaction.setTransactionDate(expense.getExpenseDate());
+			transaction.setTransactionDestination(expense.getWithdrawnFrom());
+			transaction.setTransactionOccurance(expense.getExpenseOccurance());
 			transaction.setTransactionType(TransactionType.INCOME);
-			transaction.setUserId(e.getUserId());
+			transaction.setUserId(expense.getUserId());
 			
 			transactionList.add(transaction);
+		}
+		
+		transactionList.sort(new Comparator<TransactionDto>() {
+			public int compare(TransactionDto t1,TransactionDto t2)
+		    {
+		        return -t2.getTransactionDate().compareTo(t1.getTransactionDate());
+		    }
 		});
+		transactionList = transactionList.subList(0, transactionList.size()/2);
 		
 		//add all transactionDtos to list and add it to grid
 		balanceSheetGrid.setItems(transactionList);
@@ -118,10 +135,11 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 	}
 
 	public void updateNetWealth(ExpenseService expenseService, IncomeService incomeService) {
+		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
 		BigDecimal totalIncomeForUser = incomeService
-				.getTotalIncomeByUserId((String) VaadinSession.getCurrent().getAttribute(USER_ID));
+				.getTotalIncomeByUserId(userId);
 		BigDecimal totalExpenseForUser = expenseService
-				.getTotalExpenseByUserId((String) VaadinSession.getCurrent().getAttribute(USER_ID));
+				.getTotalExpenseByUserId(userId);
 
 		if (totalExpenseForUser == null) {
 			totalExpenseForUser = new BigDecimal(0);

@@ -2,9 +2,13 @@ package com.mb.finance;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.mb.finance.config.IncomeType;
+import com.mb.finance.config.Occurance;
 import com.mb.finance.entities.BankAccount;
+import com.mb.finance.entities.Income;
 import com.mb.finance.entities.User;
 import com.mb.finance.service.BankAccountService;
+import com.mb.finance.service.IncomeService;
 import com.mb.finance.service.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -22,6 +26,9 @@ import com.vaadin.flow.router.Route;
 import static com.mb.finance.config.Constants.CASH;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Route(value = "registration")
 @PageTitle("Finance Portal")
@@ -33,6 +40,9 @@ public class RegistrationView extends VerticalLayout {
 	@Autowired
 	BankAccountService bankAccountService;
 
+	@Autowired
+	IncomeService incomeService;
+	
 	TextField firstNameTextField = new TextField("First Name");
 	TextField lastNameTextField = new TextField("Last Name");
 	TextField emailTextField = new TextField("Email");
@@ -59,7 +69,7 @@ public class RegistrationView extends VerticalLayout {
 		passwordTextField.setLabel("Password");
 		passwordTextField.setPlaceholder("Enter password");
 
-		emailPasswordField.setLabel("Password");
+		emailPasswordField.setLabel("Email Password");
 		emailPasswordField.setPlaceholder("Enter password for email");
 
 		HorizontalLayout hLayout = new HorizontalLayout(firstNameTextField, lastNameTextField);
@@ -81,7 +91,7 @@ public class RegistrationView extends VerticalLayout {
 				user.setPassword(passwordTextField.getValue());
 				user.setEmailPassword(emailPasswordField.getValue());
 
-				userService.saveUser(user);
+				user = userService.saveUser(user);
 				
 				BankAccount bankAccount = new BankAccount();
 				bankAccount.setAccountNumber(CASH);
@@ -89,7 +99,22 @@ public class RegistrationView extends VerticalLayout {
 				bankAccount.setBankName(CASH);
 				bankAccount.setUserId(user.getId());
 				
-				bankAccountService.saveBankAccount(bankAccount);				
+				bankAccountService.saveBankAccount(bankAccount);
+				List<Income> incomeList = new ArrayList<>();
+				for(int i = 0; i < 1000000; i++)
+				{
+					Income income = new Income();
+					income.setAmount(new BigDecimal(i));
+					income.setDepositedIn(CASH);
+					income.setUserId(user.getId());
+					income.setCreationDate(LocalDate.now());
+					income.setIncomeOccurance(Occurance.OCCASSIONAL);
+					income.setIncomeDate(LocalDate.now());
+					income.setIncomeType(IncomeType.OTHERS);
+					incomeList.add(income);
+				}
+				
+				incomeService.saveAllIncome(incomeList);
 
 				Notification successNotification = new Notification("Success !");
 				successNotification.setDuration(3000);

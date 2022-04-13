@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+
 import com.mb.finance.entities.Income;
 
 public interface IncomeService {
@@ -17,8 +19,11 @@ public interface IncomeService {
 	
 	List<Income> getAllIncomeByUserId(String userId);
 	
+	List<Income> getAllIncomeByUserId(String userId, Pageable pageable);
+	
 	BigDecimal getAllIncomeForCurrentMonthForAUser(String userId, LocalDate currentDate);
 	
 	Boolean deleteIncome(Income income);
 	
+	void saveAllIncome(List<Income> incomeList);
 }

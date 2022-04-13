@@ -3,6 +3,10 @@ package com.mb.finance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.mb.finance.config.IncomeType;
+import com.mb.finance.config.Occurance;
+import com.mb.finance.entities.Income;
+import com.mb.finance.service.IncomeService;
 import com.mb.finance.service.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -18,12 +22,18 @@ import com.vaadin.flow.server.VaadinSession;
 
 import static com.mb.finance.config.Constants.USER_ID;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 @Route(value = "login")
 @PageTitle("Finance : Login")
 public class LoginView extends VerticalLayout {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	IncomeService incomeService;
 
 	public LoginView(UserService userService) {
 		addClassName("login-view");
@@ -48,6 +58,7 @@ public class LoginView extends VerticalLayout {
 		submitButton.addClickListener(event -> {
 			String userId = userService.authenticate(usernameField.getValue(), passwordField.getValue());
 			if (!StringUtils.isEmpty(userId)) {
+					
 				VaadinSession.getCurrent().setAttribute(USER_ID, userId);
 				UI.getCurrent().navigate("showbalancesheet");
 			} else {

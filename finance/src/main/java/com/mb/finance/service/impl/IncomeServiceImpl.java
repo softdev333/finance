@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,12 +63,17 @@ public class IncomeServiceImpl implements IncomeService {
 
 	@Override
 	public List<Income> getAllIncomeByUserId(String userId) {
-		return incomeRepository.findByUserId(userId);
+		return incomeRepository.findByUserIdOrderByIncomeDateDesc(userId);
+	}
+
+	@Override
+	public List<Income> getAllIncomeByUserId(String userId, Pageable pageable) {
+		return incomeRepository.findByUserIdOrderByIncomeDateDesc(userId, pageable);
 	}
 
 	@Override
 	public BigDecimal getAllIncomeForCurrentMonthForAUser(String userId, LocalDate currentDate) {
-		List<Income> totalIncomeForUser = incomeRepository.findByUserId(userId);
+		List<Income> totalIncomeForUser = incomeRepository.findByUserIdOrderByIncomeDateDesc(userId);
 
 		List<Income> resultIncomes = totalIncomeForUser.stream()
 				.filter(income -> income.getIncomeDate().getMonthValue() == currentDate.getMonthValue()
@@ -85,7 +91,7 @@ public class IncomeServiceImpl implements IncomeService {
 	@Override
 	public BigDecimal getTotalIncomeByUserId(String userId) {
 
-		List<Income> allIncome = incomeRepository.findByUserId(userId);
+		List<Income> allIncome = incomeRepository.findByUserIdOrderByIncomeDateDesc(userId);
 		BigDecimal result = new BigDecimal(0);
 		for (Income income : allIncome) {
 			result = result.add(income.getAmount());
@@ -98,6 +104,11 @@ public class IncomeServiceImpl implements IncomeService {
 	public Boolean deleteIncome(Income income) {
 		incomeRepository.delete(income);
 		return true;
+	}
+
+	@Override
+	public void saveAllIncome(List<Income> incomeList) {
+		incomeRepository.saveAll(incomeList);		
 	}
 
 }

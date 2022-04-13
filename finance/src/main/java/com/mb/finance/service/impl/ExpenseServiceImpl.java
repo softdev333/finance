@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,12 +60,18 @@ public class ExpenseServiceImpl implements ExpenseService {
 	@Override
 	public List<Expense> getExpensesByUserId(String userId) {
 
-		return expenseRepository.findByUserId(userId);
+		return expenseRepository.findByUserIdOrderByExpenseDateDesc(userId);
+	}
+	
+	@Override
+	public List<Expense> getExpensesByUserId(String userId,Pageable pageable) {
+
+		return expenseRepository.findByUserIdOrderByExpenseDateDesc(userId,pageable);
 	}
 
 	@Override
 	public BigDecimal getAllExpensesForCurrentMonthForUserId(String userId, LocalDate expenseDate) {
-		List<Expense> totalExpenseForUser = expenseRepository.findByUserId(userId);
+		List<Expense> totalExpenseForUser = expenseRepository.findByUserIdOrderByExpenseDateDesc(userId);
 
 		List<Expense> resultExpense = totalExpenseForUser.stream()
 				.filter(expense -> expense.getExpenseDate().getMonthValue() == expenseDate.getMonthValue()
@@ -82,7 +89,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 	@Override
 	public BigDecimal getTotalExpenseByUserId(String userId) {
 
-		List<Expense> allExpenses = expenseRepository.findByUserId(userId);
+		List<Expense> allExpenses = expenseRepository.findByUserIdOrderByExpenseDateDesc(userId);
 		BigDecimal result = new BigDecimal(0);
 
 		for (Expense expense : allExpenses) {
