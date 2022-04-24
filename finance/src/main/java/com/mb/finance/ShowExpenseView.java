@@ -1,9 +1,14 @@
 package com.mb.finance;
 
+import static com.mb.finance.config.Constants.USER_ID;
+
 import java.time.LocalDate;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.mb.finance.entities.Expense;
 import com.mb.finance.service.ExpenseService;
@@ -12,8 +17,11 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -22,11 +30,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
-import static com.mb.finance.config.Constants.USER_ID;
-
 @Route(value = "showexpense", layout = MainLayout.class)
 @PageTitle("Finance : Expenses")
 public class ShowExpenseView extends VerticalLayout implements BeforeEnterObserver {
+	
+	public static final String EXPENSE_PAGE_NUMBER= "expensePageNumber";
 
 	@Autowired
 	ExpenseService expenseService;
@@ -36,6 +44,12 @@ public class ShowExpenseView extends VerticalLayout implements BeforeEnterObserv
 	TextField totalExpenseField = new TextField("Total Expense for current month");
 
 	Grid<Expense> expenseGrid = new Grid<>(Expense.class);
+	
+	Button currentButton = new Button("Latest");
+	
+	Button arrowLeftButton = new Button("Newer", new Icon(VaadinIcon.ARROW_LEFT));
+
+	Button arrowRightButton = new Button("Past", new Icon(VaadinIcon.ARROW_RIGHT));
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent arg0) {
@@ -47,6 +61,8 @@ public class ShowExpenseView extends VerticalLayout implements BeforeEnterObserv
 	}
 
 	public ShowExpenseView(ExpenseService expenseService) {
+		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
+		VaadinSession.getCurrent().setAttribute(EXPENSE_PAGE_NUMBER, 0);
 		expenseGrid.setColumns("amount", "expenseType", "expenseDate", "expenseOccurance", "withdrawnFrom", "comments");
 		expenseGrid.setWidth("70%");
 		updateGridColumnSize();
@@ -57,11 +73,21 @@ public class ShowExpenseView extends VerticalLayout implements BeforeEnterObserv
 		totalExpenseField.setReadOnly(true);
 		totalExpenseField.setWidth("20%");
 
-		updateExpenseGrid(expenseService);
-		add(pageTitle, totalExpenseField, expenseGrid);
+		Pageable latestPageable = PageRequest.of(0, 20);
+		List<Expense> expenseList = expenseService.getExpensesByUserId(userId, latestPageable);
+		updateExpenseGrid(expenseList);
+		
+		HorizontalLayout hl1 = new HorizontalLayout();
+		hl1.add(currentButton,arrowLeftButton,arrowRightButton);
+		
+		VerticalLayout vl1 = new VerticalLayout();
+		vl1.add(hl1,expenseGrid);
+		
+		add(pageTitle, totalExpenseField, vl1);
 	}
 
 	private Button createRemoveButton(Expense item, ExpenseService expenseService) {
+		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
 		Span content = new Span("You sure, you want to delete this ?");
 
 		NativeButton buttonInside = new NativeButton("No");
@@ -75,7 +101,10 @@ public class ShowExpenseView extends VerticalLayout implements BeforeEnterObserv
 
 		buttonInside2.addClickListener(event -> {
 			expenseService.deleteExpense(item);
-			updateExpenseGrid(expenseService);
+			Integer expensePageNumber = (Integer) VaadinSession.getCurrent().getAttribute(EXPENSE_PAGE_NUMBER);
+			Pageable latestPageable = PageRequest.of(expensePageNumber < 0 ? 0 : expensePageNumber , 20);
+			List<Expense> expenseList = expenseService.getExpensesByUserId(userId, latestPageable);
+			updateExpenseGrid(expenseList);
 			updateTotalExpense(expenseService);
 			notification.close();
 			Notification successNotification = new Notification("Expense successfully deleted", 5000, Position.MIDDLE);
@@ -97,18 +126,14 @@ public class ShowExpenseView extends VerticalLayout implements BeforeEnterObserv
 		expenseGrid.getColumnByKey("comments").setAutoWidth(true);
 	}
 
-	public void updateExpenseGrid(ExpenseService expenseService) {
-		expenseGrid.setItems(
-				expenseService.getExpensesByUserId((String) VaadinSession.getCurrent().getAttribute(USER_ID)));
+	public void updateExpenseGrid(List<Expense> expenseList) {
+		expenseGrid.setItems(expenseList);
 		updateGridColumnSize();
 	}
 
 	public void updateTotalExpense(ExpenseService expenseService) {
-		totalExpenseField
-				.setValue(expenseService
-						.getAllExpensesForCurrentMonthForUserId(
-								(String) VaadinSession.getCurrent().getAttribute(USER_ID), LocalDate.now())
-						.toPlainString());
+		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
+		totalExpenseField.setValue(expenseService.getAllExpensesForCurrentMonthForUserId(userId, LocalDate.now()).toPlainString());
 	}
 
 }

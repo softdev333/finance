@@ -1,11 +1,10 @@
 package com.mb.finance;
 
+import static com.mb.finance.config.Constants.USER_ID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.mb.finance.config.IncomeType;
-import com.mb.finance.config.Occurance;
-import com.mb.finance.entities.Income;
 import com.mb.finance.service.IncomeService;
 import com.mb.finance.service.UserService;
 import com.vaadin.flow.component.UI;
@@ -19,11 +18,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
-
-import static com.mb.finance.config.Constants.USER_ID;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Route(value = "login")
 @PageTitle("Finance : Login")

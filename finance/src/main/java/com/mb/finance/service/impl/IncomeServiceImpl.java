@@ -36,11 +36,8 @@ public class IncomeServiceImpl implements IncomeService {
 		if (income.getAmount().compareTo(BigDecimal.ZERO) == -1) {
 			throw new Exception("Amount cannot be negative");
 		}
-
-		if (income.getIncomeDate() == null) {
-			income.setIncomeDate(LocalDate.now());
-		}
-
+		
+		income.setIncomeDate(income.getIncomeDate() != null ? income.getIncomeDate() : LocalDate.now());
 		income.setCreationDate(LocalDate.now());
 		income = incomeRepository.save(income);
 		

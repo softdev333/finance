@@ -1,5 +1,7 @@
 package com.mb.finance;
 
+import static com.mb.finance.config.Constants.USER_ID;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -29,8 +31,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
-
-import static com.mb.finance.config.Constants.USER_ID;
 
 @Route(value = "addincome", layout = MainLayout.class)
 @PageTitle("Finance : Add Income")

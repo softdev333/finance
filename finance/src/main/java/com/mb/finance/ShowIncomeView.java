@@ -1,5 +1,7 @@
 package com.mb.finance;
 
+import static com.mb.finance.config.Constants.USER_ID;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -28,8 +30,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
-import static com.mb.finance.config.Constants.USER_ID;
-
 @Route(value = "showincome", layout = MainLayout.class)
 @PageTitle("Finance : Income")
 public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserver {
@@ -47,9 +47,9 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 	
 	Button currentButton = new Button("Latest");
 	
-	Button arrowLeftButton = new Button("Previous", new Icon(VaadinIcon.ARROW_LEFT));
+	Button arrowLeftButton = new Button("Newer", new Icon(VaadinIcon.ARROW_LEFT));
 
-	Button arrowRightButton = new Button("Next", new Icon(VaadinIcon.ARROW_RIGHT));
+	Button arrowRightButton = new Button("Past", new Icon(VaadinIcon.ARROW_RIGHT));
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent arg0) {
@@ -85,10 +85,11 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 		arrowLeftButton.addClickListener(event -> {
 			Integer incomePageNumber = (Integer) VaadinSession.getCurrent().getAttribute(INCOME_PAGE_NUMBER);
 			Integer updatedIncomePageNumber = incomePageNumber - 1;
-			Pageable latestPageable = PageRequest.of(updatedIncomePageNumber < 0 ? 0 : updatedIncomePageNumber , 20);
+			updatedIncomePageNumber = updatedIncomePageNumber < 0 ? 0 : updatedIncomePageNumber;
+			Pageable latestPageable = PageRequest.of(updatedIncomePageNumber , 20);
 			List<Income> updatedIncomeList = incomeService.getAllIncomeByUserId(userId, latestPageable);
 			updateIncomeGrid(updatedIncomeList);
-			VaadinSession.getCurrent().setAttribute(INCOME_PAGE_NUMBER, updatedIncomePageNumber < 0 ? 0 : updatedIncomePageNumber);
+			VaadinSession.getCurrent().setAttribute(INCOME_PAGE_NUMBER, updatedIncomePageNumber);
 		});
 		
 		arrowRightButton.addClickListener(event -> {
@@ -110,6 +111,7 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 	}
 
 	private Button createRemoveButton(Income item, IncomeService incomeService) {
+		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
 		Span content = new Span("You sure, you want to delete this ?");
 
 		NativeButton buttonInside = new NativeButton("No");
@@ -123,7 +125,9 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 
 		buttonInside2.addClickListener(event -> {
 			incomeService.deleteIncome(item);
-			List<Income> incomeList = incomeService.getAllIncomeByUserId((String) VaadinSession.getCurrent().getAttribute(USER_ID));
+			Integer incomePageNumber = (Integer) VaadinSession.getCurrent().getAttribute(INCOME_PAGE_NUMBER);
+			Pageable latestPageable = PageRequest.of(incomePageNumber < 0 ? 0 : incomePageNumber , 20);
+			List<Income> incomeList = incomeService.getAllIncomeByUserId(userId,latestPageable);
 			updateIncomeGrid(incomeList);
 			updateTotalIncome(incomeService);
 			notification.close();
@@ -152,7 +156,8 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 	}
 
 	public void updateTotalIncome(IncomeService incomeService) {
-		totalIncomeField.setValue(incomeService.getAllIncomeForCurrentMonthForAUser((String) VaadinSession.getCurrent().getAttribute(USER_ID), LocalDate.now()).toPlainString());
+		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
+		totalIncomeField.setValue(incomeService.getAllIncomeForCurrentMonthForAUser(userId, LocalDate.now()).toPlainString());
 	}
 
 }

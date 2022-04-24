@@ -1,5 +1,7 @@
 package com.mb.finance;
 
+import static com.mb.finance.config.Constants.USER_ID;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,8 +14,10 @@ import org.springframework.data.domain.Pageable;
 
 import com.mb.finance.config.TransactionDto;
 import com.mb.finance.config.TransactionType;
+import com.mb.finance.entities.BankAccount;
 import com.mb.finance.entities.Expense;
 import com.mb.finance.entities.Income;
+import com.mb.finance.service.BankAccountService;
 import com.mb.finance.service.ExpenseService;
 import com.mb.finance.service.IncomeService;
 import com.vaadin.flow.component.grid.Grid;
@@ -28,8 +32,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
-import static com.mb.finance.config.Constants.USER_ID;
-
 @Route(value = "showbalancesheet", layout = MainLayout.class)
 @PageTitle("Finance : Balance Sheet")
 public class BalanceSheetView extends VerticalLayout implements BeforeEnterObserver {
@@ -39,6 +41,9 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 
 	@Autowired
 	ExpenseService expenseService;
+	
+	@Autowired
+	BankAccountService bankAccountService;
 
 	H2 pageTitle = new H2("Balance Sheet");
 
@@ -57,7 +62,7 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 	}
 
 	public BalanceSheetView( ExpenseService expenseService,
-			IncomeService incomeService) {
+			IncomeService incomeService, BankAccountService bankAccountService) {
 		VaadinSession.getCurrent().setAttribute("currentPageNumber", 1);
 		
 		balanceSheetGrid.setColumns("amount", "transactionType", "transactionDate", "transactionDestination", "comments");
@@ -67,7 +72,8 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		updateBalanceSheetGrid(expenseService, incomeService);
 
 		netWealth.setReadOnly(true);
-		updateNetWealth(expenseService, incomeService);
+		
+		updateNetWealth(expenseService, incomeService, bankAccountService);
 
 		add(pageTitle, netWealth,balanceSheetGrid );
 	}
@@ -126,7 +132,7 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		        return -t2.getTransactionDate().compareTo(t1.getTransactionDate());
 		    }
 		});
-		transactionList = transactionList.subList(0, transactionList.size()/2);
+		transactionList = transactionList.subList(0, transactionList.size() < 20 ? transactionList.size() : 20);
 		
 		//add all transactionDtos to list and add it to grid
 		balanceSheetGrid.setItems(transactionList);
@@ -134,12 +140,16 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		updateGridColumnSize();
 	}
 
-	public void updateNetWealth(ExpenseService expenseService, IncomeService incomeService) {
+	public void updateNetWealth(ExpenseService expenseService, IncomeService incomeService,BankAccountService bankAccountService) {
 		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
-		BigDecimal totalIncomeForUser = incomeService
-				.getTotalIncomeByUserId(userId);
-		BigDecimal totalExpenseForUser = expenseService
-				.getTotalExpenseByUserId(userId);
+		
+		List<BankAccount> allAccountsForUser = bankAccountService.getAllAccountsForUserId(userId);
+		
+		BigDecimal totalCapital = BigDecimal.ZERO;
+		totalCapital = allAccountsForUser.stream().map(e->e.getBalance()).reduce(BigDecimal.ZERO, BigDecimal::add);
+		
+		BigDecimal totalIncomeForUser = incomeService.getTotalIncomeByUserId(userId);
+		BigDecimal totalExpenseForUser = expenseService.getTotalExpenseByUserId(userId);
 
 		if (totalExpenseForUser == null) {
 			totalExpenseForUser = new BigDecimal(0);
@@ -147,7 +157,7 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		if (totalIncomeForUser == null) {
 			totalIncomeForUser = new BigDecimal(0);
 		}
-		netWealth.setValue(totalIncomeForUser.subtract(totalExpenseForUser).toPlainString());
+		netWealth.setValue(totalCapital.add(totalIncomeForUser.subtract(totalExpenseForUser)).toPlainString());
 	}
 
 }

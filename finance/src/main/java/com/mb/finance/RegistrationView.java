@@ -1,11 +1,12 @@
 package com.mb.finance;
 
+import static com.mb.finance.config.Constants.CASH;
+
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.mb.finance.config.IncomeType;
-import com.mb.finance.config.Occurance;
 import com.mb.finance.entities.BankAccount;
-import com.mb.finance.entities.Income;
 import com.mb.finance.entities.User;
 import com.mb.finance.service.BankAccountService;
 import com.mb.finance.service.IncomeService;
@@ -22,13 +23,6 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
-import static com.mb.finance.config.Constants.CASH;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Route(value = "registration")
 @PageTitle("Finance Portal")
@@ -53,7 +47,6 @@ public class RegistrationView extends VerticalLayout {
 
 	Button submitButton = new Button("Submit");
 
-	//,BankAccountService bankAccountService
 	public RegistrationView(UserService userService) {
 
 		addClassName("registration-view");
@@ -74,8 +67,7 @@ public class RegistrationView extends VerticalLayout {
 
 		HorizontalLayout hLayout = new HorizontalLayout(firstNameTextField, lastNameTextField);
 
-		VerticalLayout vLayout = new VerticalLayout(welcomeTitle, registrationTitle, hLayout, emailTextField,emailPasswordField,
-				usernameTextField, passwordTextField, submitButton);
+		VerticalLayout vLayout = new VerticalLayout(welcomeTitle, registrationTitle, hLayout, emailTextField, emailPasswordField, usernameTextField, passwordTextField, submitButton);
 
 		vLayout.setSizeFull();
 		vLayout.setAlignItems(Alignment.CENTER);
@@ -100,22 +92,7 @@ public class RegistrationView extends VerticalLayout {
 				bankAccount.setUserId(user.getId());
 				
 				bankAccountService.saveBankAccount(bankAccount);
-				List<Income> incomeList = new ArrayList<>();
-				for(int i = 0; i < 1000000; i++)
-				{
-					Income income = new Income();
-					income.setAmount(new BigDecimal(i));
-					income.setDepositedIn(CASH);
-					income.setUserId(user.getId());
-					income.setCreationDate(LocalDate.now());
-					income.setIncomeOccurance(Occurance.OCCASSIONAL);
-					income.setIncomeDate(LocalDate.now());
-					income.setIncomeType(IncomeType.OTHERS);
-					incomeList.add(income);
-				}
 				
-				incomeService.saveAllIncome(incomeList);
-
 				Notification successNotification = new Notification("Success !");
 				successNotification.setDuration(3000);
 				successNotification.setPosition(Position.MIDDLE);

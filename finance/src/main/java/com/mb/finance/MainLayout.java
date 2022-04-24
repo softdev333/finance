@@ -43,6 +43,7 @@ public class MainLayout extends AppLayout implements RouterLayout {
 	private void createDrawer() {
 
 		RouterLink incomeAddLink = new RouterLink("Add Income", AddIncomeView.class);
+		
 		RouterLink allIncomeLink = new RouterLink("Show All Income", ShowIncomeView.class);
 
 		RouterLink expenseAddLink = new RouterLink("Add Expense", AddExpenseView.class);

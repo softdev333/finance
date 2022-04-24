@@ -1,5 +1,9 @@
 package com.mb.finance;
 
+import static com.mb.finance.config.Constants.USER_ID;
+
+import java.math.BigDecimal;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,10 +20,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
-
-import static com.mb.finance.config.Constants.USER_ID;
-
-import java.math.BigDecimal;
 
 @Route(value = "addbankaccount", layout = MainLayout.class)
 @PageTitle("Finance : Add Expense")
@@ -70,7 +70,7 @@ public class AddBankAccountView extends VerticalLayout implements BeforeEnterObs
 		
 			bankAccountService.saveBankAccount(bankAccount);
 			
-			Notification successNotification = new Notification("Income Added successfully", 5000, Position.MIDDLE);
+			Notification successNotification = new Notification("New Account Created", 5000, Position.MIDDLE);
 			successNotification.open();
 			setDefaultValue();
 		}
