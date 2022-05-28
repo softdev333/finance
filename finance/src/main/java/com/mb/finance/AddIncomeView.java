@@ -107,7 +107,7 @@ public class AddIncomeView extends VerticalLayout implements BeforeEnterObserver
 		income.setDepositedIn(depositedInOptionsField.getValue());
 
 		try {
-			incomeService.addNewIncome(income, null);
+			incomeService.addNewIncome(income);
 			Notification successNotification = new Notification("Income Added successfully", 5000, Position.MIDDLE);
 			successNotification.open();
 			setDefaultValue();

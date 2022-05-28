@@ -11,10 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mb.finance.entities.BacklogData;
 import com.mb.finance.entities.Expense;
 import com.mb.finance.repository.ExpenseRepository;
-import com.mb.finance.service.BacklogDataService;
 import com.mb.finance.service.ExpenseService;
 
 @Service
@@ -22,13 +20,10 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 	@Autowired
 	ExpenseRepository expenseRepository;
-	
-	@Autowired
-	BacklogDataService backlogDataService;
 
 	@Override
 	@Transactional
-	public Expense addExpense(Expense expense, LocalDate backlogDataCreationDate) throws Exception {
+	public Expense addExpense(Expense expense) throws Exception {
 
 		if (StringUtils.isEmpty(expense.getUserId())) {
 			throw new Exception("No User Found");
@@ -44,15 +39,6 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 		expense.setCreationDate(LocalDate.now());
 		expense = expenseRepository.save(expense);
-		
-		BacklogData backlogData = new BacklogData();
-		backlogData.setUserId(expense.getUserId());
-		backlogData.setRecord(expense.toString());
-		backlogData.setCreationDate(backlogDataCreationDate != null ? backlogDataCreationDate : LocalDate.now());
-		backlogData.setProcessedDate(LocalDate.now());
-		backlogData.setIsProcessed(true);
-		
-		backlogDataService.saveBacklogData(backlogData);
 
 		return expense;
 	}
@@ -103,6 +89,11 @@ public class ExpenseServiceImpl implements ExpenseService {
 	public Boolean deleteExpense(Expense expense) {
 		expenseRepository.delete(expense);
 		return true;
+	}
+
+	@Override
+	public void saveAllExpenses(List<Expense> expenseList) {
+		expenseRepository.saveAll(expenseList);		
 	}
 
 }

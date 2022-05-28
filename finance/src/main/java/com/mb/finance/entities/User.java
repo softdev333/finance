@@ -35,11 +35,9 @@ public class User {
 	@Column(name = "EMAIL")
 	String email;
 	
-	@Column(name = "EMAIL_PASSWORD")
-	String emailPassword;
-	
 	@Column(name = "PASSWORD_SALT")
 	String passwordSalt;
+	
 	
 	public String getId() {
 		return id;
@@ -81,23 +79,29 @@ public class User {
 		this.userName = userName;
 	}
 
-	public String getEmailPassword() {
-		return emailPassword;
-	}
-
-	public void setEmailPassword(String emailPassword) {
-		this.emailPassword = emailPassword;
-	}
-
 	public void setPassword(String password)
 	{
 		this.passwordSalt = RandomStringUtils.random(32);
 		this.passwordHash = DigestUtils.sha256Hex(passwordSalt+password);
 	}
-	
+
 	public boolean checkPassword(String password)
 	{
 		return this.passwordHash.equals(DigestUtils.sha256Hex(this.passwordSalt+password));
+	}
+	
+	public String getUserInformationForFile()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("FIRST NAME|LAST NAME|USER NAME|EMAIL|PASSWORD SALT\n");
+		sb.append(firstName+"|"+lastName+"|"+userName+"|"+email+"|"+passwordSalt+"\n");
+		return sb.toString();
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", userName=" + userName
+				+ ", passwordHash=" + passwordHash + ", email=" + email + ", passwordSalt=" + passwordSalt + "]";
 	}
 	
 	

@@ -43,7 +43,6 @@ public class RegistrationView extends VerticalLayout {
 	TextField usernameTextField = new TextField("Username");
 
 	PasswordField passwordTextField = new PasswordField();
-	PasswordField emailPasswordField = new PasswordField();
 
 	Button submitButton = new Button("Submit");
 
@@ -62,12 +61,9 @@ public class RegistrationView extends VerticalLayout {
 		passwordTextField.setLabel("Password");
 		passwordTextField.setPlaceholder("Enter password");
 
-		emailPasswordField.setLabel("Email Password");
-		emailPasswordField.setPlaceholder("Enter password for email");
-
 		HorizontalLayout hLayout = new HorizontalLayout(firstNameTextField, lastNameTextField);
 
-		VerticalLayout vLayout = new VerticalLayout(welcomeTitle, registrationTitle, hLayout, emailTextField, emailPasswordField, usernameTextField, passwordTextField, submitButton);
+		VerticalLayout vLayout = new VerticalLayout(welcomeTitle, registrationTitle, hLayout, emailTextField, usernameTextField, passwordTextField, submitButton);
 
 		vLayout.setSizeFull();
 		vLayout.setAlignItems(Alignment.CENTER);
@@ -81,7 +77,6 @@ public class RegistrationView extends VerticalLayout {
 				user.setLastName(lastNameTextField.getValue());
 				user.setUserName(usernameTextField.getValue());
 				user.setPassword(passwordTextField.getValue());
-				user.setEmailPassword(emailPasswordField.getValue());
 
 				user = userService.saveUser(user);
 				

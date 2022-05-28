@@ -10,6 +10,6 @@ public interface UserService {
 	
 	String authenticate(String username,String password);
 	
-	void loadEmailData(String userId);
+	String getOverallData(String userId);
 	
 }

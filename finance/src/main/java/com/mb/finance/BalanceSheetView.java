@@ -65,7 +65,7 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 			IncomeService incomeService, BankAccountService bankAccountService) {
 		VaadinSession.getCurrent().setAttribute("currentPageNumber", 1);
 		
-		balanceSheetGrid.setColumns("amount", "transactionType", "transactionDate", "transactionDestination", "comments");
+		balanceSheetGrid.setColumns("amount", "transactionType", "transactionDate", "transactionEndPoint", "transactionOn","comments");
 		updateGridColumnSize();
 		balanceSheetGrid.setWidth("70%");
 
@@ -82,7 +82,8 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		balanceSheetGrid.getColumnByKey("amount").setAutoWidth(true);
 		balanceSheetGrid.getColumnByKey("transactionType").setAutoWidth(true);
 		balanceSheetGrid.getColumnByKey("transactionDate").setAutoWidth(true);
-		balanceSheetGrid.getColumnByKey("transactionDestination").setAutoWidth(true);
+		balanceSheetGrid.getColumnByKey("transactionEndPoint").setAutoWidth(true);
+		balanceSheetGrid.getColumnByKey("transactionOn").setAutoWidth(true);
 		balanceSheetGrid.getColumnByKey("comments").setAutoWidth(true);
 	}
 
@@ -101,9 +102,10 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 			transaction.setComments(income.getComments());
 			transaction.setCreationDate(income.getCreationDate());
 			transaction.setTransactionDate(income.getIncomeDate());
-			transaction.setTransactionDestination(income.getDepositedIn());
+			transaction.setTransactionEndPoint(income.getDepositedIn());
 			transaction.setTransactionOccurance(income.getIncomeOccurance());
 			transaction.setTransactionType(TransactionType.INCOME);
+			transaction.setTransactionOn(income.getIncomeType().toString());
 			transaction.setUserId(income.getUserId());
 			
 			transactionList.add(transaction);
@@ -118,9 +120,10 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 			transaction.setComments(expense.getComments());
 			transaction.setCreationDate(expense.getCreationDate());
 			transaction.setTransactionDate(expense.getExpenseDate());
-			transaction.setTransactionDestination(expense.getWithdrawnFrom());
+			transaction.setTransactionEndPoint(expense.getWithdrawnFrom());
 			transaction.setTransactionOccurance(expense.getExpenseOccurance());
-			transaction.setTransactionType(TransactionType.INCOME);
+			transaction.setTransactionType(TransactionType.EXPENSE);
+			transaction.setTransactionOn(expense.getExpenseType().toString());
 			transaction.setUserId(expense.getUserId());
 			
 			transactionList.add(transaction);

@@ -5,6 +5,8 @@ import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Table;
 
@@ -31,6 +33,7 @@ public class Income {
 	BigDecimal amount = BigDecimal.ZERO;
 	
 	@Column(name = "INCOME_TYPE")
+	@Enumerated(EnumType.STRING)
 	IncomeType incomeType;
 	
 	@Column(name = "INCOME_COMMENTS")
@@ -43,6 +46,7 @@ public class Income {
 	LocalDate incomeDate;
 	
 	@Column(name = "OCCURANCE")
+	@Enumerated(EnumType.STRING)
 	Occurance incomeOccurance;
 	
 	@Column(name = "DEPOSITED_IN")

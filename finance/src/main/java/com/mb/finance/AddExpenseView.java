@@ -122,7 +122,7 @@ public class AddExpenseView extends VerticalLayout implements BeforeEnterObserve
 		expense.setWithdrawnFrom(withdrawnFromOptionsField.getValue());
 
 		try {
-			expenseService.addExpense(expense, null);
+			expenseService.addExpense(expense);
 
 			setDefaultValues();
 

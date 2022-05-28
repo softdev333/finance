@@ -10,7 +10,7 @@ import com.mb.finance.entities.Expense;
 
 public interface ExpenseService {
 
-	Expense addExpense(Expense expense, LocalDate backlogDataCreationDate) throws Exception ;
+	Expense addExpense(Expense expense) throws Exception ;
 	
 	List<Expense> getExpensesByUserId(String userId);
 	
@@ -21,5 +21,7 @@ public interface ExpenseService {
 	BigDecimal getTotalExpenseByUserId(String userId);
 	
 	Boolean deleteExpense(Expense expense);
+	
+	void saveAllExpenses(List<Expense> expenseList);
 	
 }

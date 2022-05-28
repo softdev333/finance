@@ -49,20 +49,6 @@
 			<scope>test</scope>
 		</dependency>
 		
-		<!-- https://mvnrepository.com/artifact/javax.mail/mail -->
-		<dependency>
-   		 	<groupId>javax.mail</groupId>
-    			<artifactId>mail</artifactId>
-   		 	<version>1.4</version>
-		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-email -->
-		<dependency>
-   			 <groupId>org.apache.commons</groupId>
-   			 <artifactId>commons-email</artifactId>
-  			  <version>1.4</version>
-		</dependency>
-		
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
   			  <groupId>org.apache.commons</groupId>
@@ -75,21 +61,30 @@
   		  <artifactId>commons-collections4</artifactId>
    		  <version>4.1</version>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/net.sourceforge.htmlunit/htmlunit -->
+						
+		<!-- mvn repository to access google sheets  -->
 		<dependency>
-  		   <groupId>net.sourceforge.htmlunit</groupId>
- 		   <artifactId>htmlunit</artifactId>
- 		   <version>2.36.0</version>
+    		<groupId>com.google.api-client</groupId>
+    		<artifactId>google-api-client</artifactId>
+    		<version>1.23.0</version>
+		</dependency>
+		<dependency>
+    		<groupId>com.google.oauth-client</groupId>
+    		<artifactId>google-oauth-client-jetty</artifactId>
+    		<version>1.23.0</version>
+		</dependency>
+		<dependency>
+    		<groupId>com.google.apis</groupId>
+    		<artifactId>google-api-services-sheets</artifactId>
+    		<version>v4-rev493-1.23.0</version>
 		</dependency>
 		
-		<!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
 		<dependency>
-  		  <groupId>commons-codec</groupId>
-   		 <artifactId>commons-codec</artifactId>
-   		 <version>1.10</version>
+    		<groupId>com.google.code.gson</groupId>
+    		<artifactId>gson</artifactId>
+    		<version>2.8.5</version>
 		</dependency>
-		
 		
 		
 		

@@ -18,9 +18,11 @@ public class TransactionDto {
 	
 	LocalDate transactionDate;
 	
+	String transactionOn;
+	
 	Occurance transactionOccurance;
 	
-	String transactionDestination;
+	String transactionEndPoint;
 
 	public String getUserId() {
 		return userId;
@@ -78,12 +80,20 @@ public class TransactionDto {
 		this.transactionOccurance = transactionOccurance;
 	}
 
-	public String getTransactionDestination() {
-		return transactionDestination;
+	public String getTransactionEndPoint() {
+		return transactionEndPoint;
 	}
 
-	public void setTransactionDestination(String transactionDestination) {
-		this.transactionDestination = transactionDestination;
+	public void setTransactionEndPoint(String transactionEndPoint) {
+		this.transactionEndPoint = transactionEndPoint;
+	}
+
+	public String getTransactionOn() {
+		return transactionOn;
+	}
+
+	public void setTransactionOn(String transactionOn) {
+		this.transactionOn = transactionOn;
 	}
 	
 	

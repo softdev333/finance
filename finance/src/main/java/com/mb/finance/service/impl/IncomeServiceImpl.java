@@ -11,10 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mb.finance.entities.BacklogData;
 import com.mb.finance.entities.Income;
 import com.mb.finance.repository.IncomeRepository;
-import com.mb.finance.service.BacklogDataService;
 import com.mb.finance.service.IncomeService;
 
 @Service
@@ -22,13 +20,10 @@ public class IncomeServiceImpl implements IncomeService {
 
 	@Autowired
 	IncomeRepository incomeRepository;
-	
-	@Autowired
-	BacklogDataService backlogDataService;
 
 	@Override
 	@Transactional
-	public Income addNewIncome(Income income, LocalDate backlogDataCreationDate) throws Exception {
+	public Income addNewIncome(Income income) throws Exception {
 		if (StringUtils.isEmpty(income.getUserId())) {
 			throw new Exception("No User Found");
 		}
@@ -40,15 +35,6 @@ public class IncomeServiceImpl implements IncomeService {
 		income.setIncomeDate(income.getIncomeDate() != null ? income.getIncomeDate() : LocalDate.now());
 		income.setCreationDate(LocalDate.now());
 		income = incomeRepository.save(income);
-		
-		BacklogData backlogData = new BacklogData();
-		backlogData.setUserId(income.getUserId());
-		backlogData.setRecord(income.toString());
-		backlogData.setCreationDate(backlogDataCreationDate!=null ? backlogDataCreationDate : LocalDate.now());
-		backlogData.setProcessedDate(LocalDate.now());
-		backlogData.setIsProcessed(true);
-		
-		backlogDataService.saveBacklogData(backlogData);
 
 		return income;
 	}

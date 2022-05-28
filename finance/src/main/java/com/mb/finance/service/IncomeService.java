@@ -11,7 +11,7 @@ import com.mb.finance.entities.Income;
 
 public interface IncomeService {
 
-	Income addNewIncome(Income income, LocalDate backlogDataCreationDate) throws Exception;
+	Income addNewIncome(Income income) throws Exception;
 	
 	List<Income> getAllIncome();
 	

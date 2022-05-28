@@ -1,27 +1,18 @@
 package com.mb.finance.service.impl;
 
-import java.time.LocalDate;
-import java.util.Properties;
+import java.util.List;
 
-import javax.mail.Flags;
-import javax.mail.Flags.Flag;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.internet.MimeMessage;
-import javax.mail.search.FlagTerm;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.mail.util.MimeMessageParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mb.finance.entities.BacklogData;
+import com.mb.finance.entities.BankAccount;
+import com.mb.finance.entities.Expense;
+import com.mb.finance.entities.Income;
 import com.mb.finance.entities.User;
 import com.mb.finance.repository.UserRepository;
-import com.mb.finance.service.BacklogDataService;
+import com.mb.finance.service.BankAccountService;
+import com.mb.finance.service.ExpenseService;
+import com.mb.finance.service.IncomeService;
 import com.mb.finance.service.UserService;
 
 @Service
@@ -29,10 +20,16 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserRepository userRepository;
+		
+	@Autowired
+	IncomeService incomeService; 
 	
 	@Autowired
-	BacklogDataService backlogDataService;
-
+	ExpenseService expenseService; 
+	
+	@Autowired
+	BankAccountService bankAccountService;
+	
 	@Override
 	public User saveUser(User user) {		
 		return userRepository.save(user);
@@ -53,64 +50,34 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void loadEmailData(String userId) {
-		
+	public String getOverallData(String userId) {
+		StringBuilder sb = new StringBuilder();
 		User user = getUser(userId);
+		sb.append(user.toString());
+		sb.append("\n");
 		
-		Properties props = new Properties();
-		props.put("mail.smtp.host", "smtp.gmail.com");
-		props.put("mail.smtp.socketFactory.port", "465");
-		props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.port", "465");
-
-		Session session = Session.getDefaultInstance(props, null);
-
-		Store store;
-
-		try {
-			store = session.getStore("imaps");
-			store.connect("smtp.gmail.com", user.getEmail(), user.getEmailPassword());
-
-			Folder inbox = store.getFolder("inbox");
-			inbox.open(Folder.READ_WRITE);
-
-			// gets unread messages only
-			Message[] messages = inbox.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
-
-			for (int i = 0, n = messages.length; i < n; i++) {
-				Message message = messages[i];
-				// checks if the email is from user and if its of "FINANCE"
-				if ("FINANCE".equals(message.getSubject())
-						&& StringUtils.contains(message.getFrom()[0].toString(), user.getEmail())) {
-					try {
-						String plainMessage = new MimeMessageParser((MimeMessage) message).parse().getPlainContent();
-						
-						//create backlogData object and save it before processing
-						BacklogData bd = new BacklogData();
-						bd.setIsProcessed(false);
-						bd.setRecord(plainMessage);
-						bd.setUserId(user.getId());
-						bd.setCreationDate(LocalDate.now());
-						
-						backlogDataService.saveBacklogData(bd);
-						
-						message.setFlag(Flag.DELETED, true);
-						
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-
-			inbox.close(true);
-			store.close();
-
-		} catch (MessagingException e) {
-			e.printStackTrace();
+		List<Income> incomeList = incomeService.getAllIncomeByUserId(userId);		
+		for(Income income : incomeList)
+		{
+			sb.append(income.toString());
+			sb.append("\n");
 		}
+		
+		List<Expense> expenseList = expenseService.getExpensesByUserId(userId);
+		for(Expense expense : expenseList)
+		{
+			sb.append(expense.toString());
+			sb.append("\n");
+		}
+		
+		List<BankAccount> bankAccounts = bankAccountService.getAllAccountsForUserId(userId);
+		for(BankAccount bankAccount : bankAccounts)
+		{
+			sb.append(bankAccount.toString());
+			sb.append("\n");
+		}
+		
+		return sb.toString();
 	}
-	
-	
 
 }
