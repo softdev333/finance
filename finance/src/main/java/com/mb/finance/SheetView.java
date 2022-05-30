@@ -208,9 +208,11 @@ public class SheetView extends VerticalLayout implements BeforeEnterObserver{
 		transactionDto.setTransactionType(transactionType);
 		
 		String transactionOn = (String) row.get(2);
+		transactionOn = transactionOn.toUpperCase();
 		transactionDto.setTransactionOn(transactionOn);
 		
 		String transactionOccurance = (String) row.get(3);
+		transactionOccurance = transactionOccurance.toUpperCase();
 		transactionDto.setTransactionOccurance(Occurance.valueOf(transactionOccurance));
 		
 		String comments = (String) row.get(4);
