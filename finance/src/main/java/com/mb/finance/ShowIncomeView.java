@@ -157,7 +157,7 @@ public class ShowIncomeView extends VerticalLayout implements BeforeEnterObserve
 
 	public void updateTotalIncome(IncomeService incomeService) {
 		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
-		totalIncomeField.setValue(incomeService.getAllIncomeForCurrentMonthForAUser(userId, LocalDate.now()).toPlainString());
+		totalIncomeField.setValue(incomeService.getAllIncomeForCurrentMonthForUser(userId, LocalDate.now()).toPlainString());
 	}
 
 }

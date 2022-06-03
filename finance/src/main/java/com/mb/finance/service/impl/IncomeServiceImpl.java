@@ -34,9 +34,7 @@ public class IncomeServiceImpl implements IncomeService {
 		
 		income.setIncomeDate(income.getIncomeDate() != null ? income.getIncomeDate() : LocalDate.now());
 		income.setCreationDate(LocalDate.now());
-		income = incomeRepository.save(income);
-
-		return income;
+		return incomeRepository.save(income);
 	}
 
 	@Override
@@ -55,7 +53,7 @@ public class IncomeServiceImpl implements IncomeService {
 	}
 
 	@Override
-	public BigDecimal getAllIncomeForCurrentMonthForAUser(String userId, LocalDate currentDate) {
+	public BigDecimal getAllIncomeForCurrentMonthForUser(String userId, LocalDate currentDate) {
 		List<Income> totalIncomeForUser = incomeRepository.findByUserIdOrderByIncomeDateDesc(userId);
 
 		List<Income> resultIncomes = totalIncomeForUser.stream()

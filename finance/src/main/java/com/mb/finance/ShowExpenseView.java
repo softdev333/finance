@@ -133,7 +133,7 @@ public class ShowExpenseView extends VerticalLayout implements BeforeEnterObserv
 
 	public void updateTotalExpense(ExpenseService expenseService) {
 		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
-		totalExpenseField.setValue(expenseService.getAllExpensesForCurrentMonthForUserId(userId, LocalDate.now()).toPlainString());
+		totalExpenseField.setValue(expenseService.getAllExpensesForCurrentMonthForUser(userId, LocalDate.now()).toPlainString());
 	}
 
 }

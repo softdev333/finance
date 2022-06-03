@@ -16,7 +16,7 @@ public interface ExpenseService {
 	
 	List<Expense> getExpensesByUserId(String userId, Pageable pageable);
 	
-	BigDecimal getAllExpensesForCurrentMonthForUserId(String userId, LocalDate expenseDate);
+	BigDecimal getAllExpensesForCurrentMonthForUser(String userId, LocalDate expenseDate);
 	
 	BigDecimal getTotalExpenseByUserId(String userId);
 	

@@ -54,11 +54,13 @@ public class MainLayout extends AppLayout implements RouterLayout {
 		
 		RouterLink bankAccountAddLink = new RouterLink("Add Bank Account", AddBankAccountView.class);
 		
-		RouterLink sheetsLink = new RouterLink("Test Sheets", SheetView.class);
+		RouterLink sheetsLink = new RouterLink("Process Sheets Data", SheetView.class);
 
 		RouterLink sheetsDataLink = new RouterLink("Add Sheets Data", SheetsPanelView.class);
+		
+		RouterLink testLink = new RouterLink("Test Link", SheetsPanelView.class);
 
-		addToDrawer(new VerticalLayout(balanceSheetLink, allIncomeLink, allExpenseLink, incomeAddLink, expenseAddLink, bankAccountAddLink, sheetsDataLink, sheetsLink));
+		addToDrawer(new VerticalLayout(balanceSheetLink, allIncomeLink, allExpenseLink, incomeAddLink, expenseAddLink, bankAccountAddLink, sheetsDataLink, sheetsLink, testLink));
 	}
 
 }

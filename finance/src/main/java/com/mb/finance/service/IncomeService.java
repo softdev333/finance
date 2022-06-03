@@ -21,7 +21,7 @@ public interface IncomeService {
 	
 	List<Income> getAllIncomeByUserId(String userId, Pageable pageable);
 	
-	BigDecimal getAllIncomeForCurrentMonthForAUser(String userId, LocalDate currentDate);
+	BigDecimal getAllIncomeForCurrentMonthForUser(String userId, LocalDate currentDate);
 	
 	Boolean deleteIncome(Income income);
 	

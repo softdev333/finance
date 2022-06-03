@@ -38,9 +38,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 		}
 
 		expense.setCreationDate(LocalDate.now());
-		expense = expenseRepository.save(expense);
-
-		return expense;
+		return expenseRepository.save(expense);
 	}
 
 	@Override
@@ -56,7 +54,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 	}
 
 	@Override
-	public BigDecimal getAllExpensesForCurrentMonthForUserId(String userId, LocalDate expenseDate) {
+	public BigDecimal getAllExpensesForCurrentMonthForUser(String userId, LocalDate expenseDate) {
 		List<Expense> totalExpenseForUser = expenseRepository.findByUserIdOrderByExpenseDateDesc(userId);
 
 		List<Expense> resultExpense = totalExpenseForUser.stream()

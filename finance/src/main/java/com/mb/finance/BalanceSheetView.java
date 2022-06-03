@@ -3,6 +3,7 @@ package com.mb.finance;
 import static com.mb.finance.config.Constants.USER_ID;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,6 +25,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -48,6 +50,14 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 	H2 pageTitle = new H2("Balance Sheet");
 
 	TextField netWealth = new TextField("Net Wealth");
+	
+	TextField incomeThisMonth = new TextField("Income this month");
+	
+	TextField expenseThisMonth = new TextField("Expense this month");
+
+	TextField averageDailySpend = new TextField("Average Daily Spend");
+
+	TextField balanceThisMonth = new TextField("Balance This Month");
 
 	Grid<TransactionDto> balanceSheetGrid = new Grid<>(TransactionDto.class);
 	
@@ -61,8 +71,7 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		}
 	}
 
-	public BalanceSheetView( ExpenseService expenseService,
-			IncomeService incomeService, BankAccountService bankAccountService) {
+	public BalanceSheetView( ExpenseService expenseService,	IncomeService incomeService, BankAccountService bankAccountService) {
 		VaadinSession.getCurrent().setAttribute("currentPageNumber", 1);
 		
 		balanceSheetGrid.setColumns("amount", "transactionType", "transactionDate", "transactionEndPoint", "transactionOn","comments");
@@ -72,10 +81,17 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		updateBalanceSheetGrid(expenseService, incomeService);
 
 		netWealth.setReadOnly(true);
+		incomeThisMonth.setReadOnly(true);
+		expenseThisMonth.setReadOnly(true);
+		averageDailySpend.setReadOnly(true);
+		balanceThisMonth.setReadOnly(true);
 		
-		updateNetWealth(expenseService, incomeService, bankAccountService);
+		updateIncomesAndExpenses(expenseService, incomeService, bankAccountService);
+		
+		HorizontalLayout hl = new HorizontalLayout();
+		hl.add(expenseThisMonth, incomeThisMonth, averageDailySpend, balanceThisMonth, netWealth);
 
-		add(pageTitle, netWealth,balanceSheetGrid );
+		add(pageTitle, hl, balanceSheetGrid);
 	}
 
 	public void updateGridColumnSize() {
@@ -143,7 +159,7 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		updateGridColumnSize();
 	}
 
-	public void updateNetWealth(ExpenseService expenseService, IncomeService incomeService,BankAccountService bankAccountService) {
+	public void updateIncomesAndExpenses(ExpenseService expenseService, IncomeService incomeService, BankAccountService bankAccountService) {
 		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
 		
 		List<BankAccount> allAccountsForUser = bankAccountService.getAllAccountsForUserId(userId);
@@ -155,12 +171,22 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		BigDecimal totalExpenseForUser = expenseService.getTotalExpenseByUserId(userId);
 
 		if (totalExpenseForUser == null) {
-			totalExpenseForUser = new BigDecimal(0);
+			totalExpenseForUser = BigDecimal.ZERO;
 		}
 		if (totalIncomeForUser == null) {
-			totalIncomeForUser = new BigDecimal(0);
+			totalIncomeForUser = BigDecimal.ZERO;
 		}
 		netWealth.setValue(totalCapital.add(totalIncomeForUser.subtract(totalExpenseForUser)).toPlainString());
+		
+		BigDecimal totalIncomeForMonth = incomeService.getAllIncomeForCurrentMonthForUser(userId, LocalDate.now());
+		BigDecimal totalExpenseForMonth = expenseService.getAllExpensesForCurrentMonthForUser(userId, LocalDate.now());
+		
+		incomeThisMonth.setValue(totalIncomeForMonth.toString());
+		expenseThisMonth.setValue(totalExpenseForMonth.toString());
+		
+		balanceThisMonth.setValue((totalIncomeForMonth.subtract(totalExpenseForMonth)).toString());
+		averageDailySpend.setValue((totalExpenseForMonth.divide(new BigDecimal("30"))).toString());
+		
 	}
 
 }

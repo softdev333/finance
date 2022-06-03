@@ -26,7 +26,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
-import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.mb.finance.config.ExpenseType;
 import com.mb.finance.config.IncomeType;
@@ -78,7 +77,7 @@ public class SheetView extends VerticalLayout implements BeforeEnterObserver{
 	
 	public SheetView(SheetService sheetService, ExpenseService expenseService, IncomeService incomeService ) throws IOException, GeneralSecurityException
 	{
-		H2 pageTitle = new H2("Google Sheets Test");
+		H2 pageTitle = new H2("Google Sheets Data");
 		
 		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
 		Sheet sheet = sheetService.findByUserId(userId);
@@ -104,7 +103,8 @@ public class SheetView extends VerticalLayout implements BeforeEnterObserver{
 			List<List<Object>> rowList = response.getValues();
 			if(rowList == null || rowList.isEmpty())
 			{
-				System.out.println("No data");
+				Notification notification = new Notification("Nothing to process", 5000, Position.MIDDLE);
+				notification.open();
 			}
 			else 
 			{
@@ -113,25 +113,22 @@ public class SheetView extends VerticalLayout implements BeforeEnterObserver{
 				
 				for(List<Object> row : rowList)
 				{
-
 					//check if there is data or not, if not, break the loop
 					if(row.get(1) == null) 
 					{
 						break;
 					}
-					
-					// *) convert the data to appropriate transactionDto
+					// convert the data to appropriate transactionDto
 					TransactionDto transactionDto = convertDataToTransactionDto(row, userId);
 					
-					// *) convert the transaction to appropriate entity and add it to the list
+					// convert the transaction to appropriate entity and add it to the list
 					convertTransactionAndAddToList(transactionDto, incomeList, expenseList);
 										
-					// *) increment rowNumber read by 1
+					// increment rowNumber read by 1
 					rowNum = rowNum + 1;
-										
 				}
 
-				// *) save the transactionDto basis its type i.e. expense for expense and income for income.
+				// save all the incomes and expenses 
 				incomeService.saveAllIncome(incomeList);
 				expenseService.saveAllExpenses(expenseList);
 				
