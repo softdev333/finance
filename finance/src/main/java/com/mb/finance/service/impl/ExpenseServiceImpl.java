@@ -1,7 +1,11 @@
 package com.mb.finance.service.impl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mb.finance.config.ExpenseType;
 import com.mb.finance.entities.Expense;
 import com.mb.finance.repository.ExpenseRepository;
 import com.mb.finance.service.ExpenseService;
@@ -54,19 +59,18 @@ public class ExpenseServiceImpl implements ExpenseService {
 	}
 
 	@Override
-	public BigDecimal getAllExpensesForCurrentMonthForUser(String userId, LocalDate expenseDate) {
-		List<Expense> totalExpenseForUser = expenseRepository.findByUserIdOrderByExpenseDateDesc(userId);
+	public BigDecimal getAllExpensesForCurrentMonthForUser(String userId, LocalDate currentDate) {
+		
+		LocalDate start = currentDate.withDayOfMonth(1);
+		LocalDate end = currentDate.withDayOfMonth(currentDate.getMonth().length(currentDate.isLeapYear()));
+		List<Expense> expenses = expenseRepository.findByUserIdAndExpenseDateBetween(userId, start, end);
+		
+		BigDecimal resultBigDecimal = BigDecimal.ZERO;
 
-		List<Expense> resultExpense = totalExpenseForUser.stream()
-				.filter(expense -> expense.getExpenseDate().getMonthValue() == expenseDate.getMonthValue()
-						&& expense.getExpenseDate().getYear() == expenseDate.getYear())
-				.collect(Collectors.toList());
-		BigDecimal resultBigDecimal = new BigDecimal(0);
-
-		for (Expense expense : resultExpense) {
+		for (Expense expense : expenses) {
 			resultBigDecimal = resultBigDecimal.add(expense.getAmount());
 		}
-
+		
 		return resultBigDecimal;
 	}
 
@@ -92,6 +96,25 @@ public class ExpenseServiceImpl implements ExpenseService {
 	@Override
 	public void saveAllExpenses(List<Expense> expenseList) {
 		expenseRepository.saveAll(expenseList);		
+	}
+
+	@Override
+	public BigDecimal getAverageDailySpend(String userId, LocalDate currentDate) {
+		LocalDate start = currentDate.withDayOfMonth(1);
+		LocalDate end = currentDate.withDayOfMonth(currentDate.getMonth().length(currentDate.isLeapYear()));
+		
+		//remove standard every month expenses like rent
+		List<Expense> expenses = expenseRepository.findByUserIdAndExpenseTypeNotInAndExpenseDateBetween(userId, Arrays.asList(ExpenseType.RENT), start, end);
+		
+		BigDecimal resultBigDecimal = BigDecimal.ZERO;
+
+		for (Expense expense : expenses) {
+			resultBigDecimal = resultBigDecimal.add(expense.getAmount());
+		}
+		
+		long daysBetween =  ChronoUnit.DAYS.between(start, currentDate) + 1;
+		
+		return resultBigDecimal.divide(new BigDecimal(daysBetween), 2, RoundingMode.HALF_DOWN);
 	}
 
 }

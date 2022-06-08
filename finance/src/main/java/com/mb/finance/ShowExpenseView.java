@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.mb.finance.entities.Expense;
+import com.mb.finance.entities.Income;
 import com.mb.finance.service.ExpenseService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -73,9 +74,34 @@ public class ShowExpenseView extends VerticalLayout implements BeforeEnterObserv
 		totalExpenseField.setReadOnly(true);
 		totalExpenseField.setWidth("20%");
 
-		Pageable latestPageable = PageRequest.of(0, 20);
-		List<Expense> expenseList = expenseService.getExpensesByUserId(userId, latestPageable);
+		Pageable pageable = PageRequest.of(0, 20);
+		List<Expense> expenseList = expenseService.getExpensesByUserId(userId, pageable);
 		updateExpenseGrid(expenseList);
+		
+		currentButton.addClickListener(event -> {
+			Pageable latestPageable = PageRequest.of(0, 20);
+			List<Expense> updatedExpenseList = expenseService.getExpensesByUserId(userId, latestPageable);
+			updateExpenseGrid(updatedExpenseList);
+		});
+		
+		arrowLeftButton.addClickListener(event -> {
+			Integer expensePageNumber = (Integer) VaadinSession.getCurrent().getAttribute(EXPENSE_PAGE_NUMBER);
+			Integer updatedExpensePageNumber = expensePageNumber - 1;
+			updatedExpensePageNumber = updatedExpensePageNumber < 0 ? 0 : updatedExpensePageNumber;
+			Pageable latestPageable = PageRequest.of(updatedExpensePageNumber , 20);
+			List<Expense> updatedExpenseList = expenseService.getExpensesByUserId(userId, latestPageable);
+			updateExpenseGrid(updatedExpenseList);
+			VaadinSession.getCurrent().setAttribute(EXPENSE_PAGE_NUMBER, updatedExpensePageNumber);
+		});
+		
+		arrowRightButton.addClickListener(event -> {
+			Integer expensePageNumber = (Integer) VaadinSession.getCurrent().getAttribute(EXPENSE_PAGE_NUMBER);
+			Integer updatedExpensePageNumber = expensePageNumber + 1;
+			Pageable latestPageable = PageRequest.of(updatedExpensePageNumber < 0 ? 0 : updatedExpensePageNumber , 20);
+			List<Expense> updatedExpenseList = expenseService.getExpensesByUserId(userId, latestPageable);
+			updateExpenseGrid(updatedExpenseList);
+			VaadinSession.getCurrent().setAttribute(EXPENSE_PAGE_NUMBER, updatedExpensePageNumber);
+		});
 		
 		HorizontalLayout hl1 = new HorizontalLayout();
 		hl1.add(currentButton,arrowLeftButton,arrowRightButton);

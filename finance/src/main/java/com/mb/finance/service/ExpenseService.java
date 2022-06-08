@@ -24,4 +24,6 @@ public interface ExpenseService {
 	
 	void saveAllExpenses(List<Expense> expenseList);
 	
+	BigDecimal getAverageDailySpend(String userId, LocalDate currentDate);
+	
 }

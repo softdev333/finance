@@ -3,6 +3,7 @@ package com.mb.finance;
 import static com.mb.finance.config.Constants.USER_ID;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -148,7 +149,7 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		transactionList.sort(new Comparator<TransactionDto>() {
 			public int compare(TransactionDto t1,TransactionDto t2)
 		    {
-		        return -t2.getTransactionDate().compareTo(t1.getTransactionDate());
+		        return t2.getTransactionDate().compareTo(t1.getTransactionDate());
 		    }
 		});
 		transactionList = transactionList.subList(0, transactionList.size() < 20 ? transactionList.size() : 20);
@@ -161,6 +162,7 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 
 	public void updateIncomesAndExpenses(ExpenseService expenseService, IncomeService incomeService, BankAccountService bankAccountService) {
 		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
+		LocalDate currentDate = LocalDate.now();
 		
 		List<BankAccount> allAccountsForUser = bankAccountService.getAllAccountsForUserId(userId);
 		
@@ -178,14 +180,16 @@ public class BalanceSheetView extends VerticalLayout implements BeforeEnterObser
 		}
 		netWealth.setValue(totalCapital.add(totalIncomeForUser.subtract(totalExpenseForUser)).toPlainString());
 		
-		BigDecimal totalIncomeForMonth = incomeService.getAllIncomeForCurrentMonthForUser(userId, LocalDate.now());
-		BigDecimal totalExpenseForMonth = expenseService.getAllExpensesForCurrentMonthForUser(userId, LocalDate.now());
+		BigDecimal totalIncomeForMonth = incomeService.getAllIncomeForCurrentMonthForUser(userId, currentDate);
+		BigDecimal totalExpenseForMonth = expenseService.getAllExpensesForCurrentMonthForUser(userId, currentDate);
 		
 		incomeThisMonth.setValue(totalIncomeForMonth.toString());
 		expenseThisMonth.setValue(totalExpenseForMonth.toString());
-		
 		balanceThisMonth.setValue((totalIncomeForMonth.subtract(totalExpenseForMonth)).toString());
-		averageDailySpend.setValue((totalExpenseForMonth.divide(new BigDecimal("30"))).toString());
+		
+		
+		BigDecimal averageDailySpendBigDecimal = expenseService.getAverageDailySpend(userId, currentDate);
+		averageDailySpend.setValue(averageDailySpendBigDecimal.toString());
 		
 	}
 
