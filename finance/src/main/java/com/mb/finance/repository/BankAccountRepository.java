@@ -8,8 +8,10 @@ import org.springframework.stereotype.Repository;
 import com.mb.finance.entities.BankAccount;
 
 @Repository
-public interface BankAccountRepository extends JpaRepository<BankAccount, String>{
+public interface BankAccountRepository extends JpaRepository<BankAccount, String> {
 
-	List<BankAccount> findByUserId(String userId);
-	
+    List<BankAccount> findByUserId(String userId);
+    
+    BankAccount findByUserIdAndAccountNumber(String userId, String accountNumber);
+
 }

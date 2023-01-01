@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -15,122 +16,118 @@ import org.hibernate.annotations.GenericGenerator;
 import com.mb.finance.config.IncomeType;
 import com.mb.finance.config.Occurance;
 
-import javax.persistence.Id;
-
 @Entity
-@Table(name  = "INCOME")
+@Table(name = "INCOME")
 public class Income {
 
-	@Id
-	@GeneratedValue(generator="system-uuid")
-	@GenericGenerator(name="system-uuid", strategy = "uuid")
-	String id;
-	
-	@Column(name = "USER_ID")
-	String userId;
-	
-	@Column(name = "AMOUNT")
-	BigDecimal amount = BigDecimal.ZERO;
-	
-	@Column(name = "INCOME_TYPE")
-	@Enumerated(EnumType.STRING)
-	IncomeType incomeType;
-	
-	@Column(name = "INCOME_COMMENTS")
-	String comments;
-	
-	@Column(name = "CREATION_DATE")
-	LocalDate creationDate;
-	
-	@Column(name = "INCOME_DATE")
-	LocalDate incomeDate;
-	
-	@Column(name = "OCCURANCE")
-	@Enumerated(EnumType.STRING)
-	Occurance incomeOccurance;
-	
-	@Column(name = "DEPOSITED_IN")
-	String depositedIn;
-	
+    @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    String id;
 
-	public String getId() {
-		return id;
-	}
+    @Column(name = "USER_ID")
+    String userId;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    @Column(name = "AMOUNT")
+    BigDecimal amount = BigDecimal.ZERO;
 
-	public BigDecimal getAmount() {
-		return amount;
-	}
+    @Column(name = "INCOME_TYPE")
+    @Enumerated(EnumType.STRING)
+    IncomeType incomeType;
 
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
-	}
+    @Column(name = "INCOME_COMMENTS")
+    String comments;
 
-	public IncomeType getIncomeType() {
-		return incomeType;
-	}
+    @Column(name = "CREATION_DATE")
+    LocalDate creationDate;
 
-	public void setIncomeType(IncomeType incomeType) {
-		this.incomeType = incomeType;
-	}
+    @Column(name = "INCOME_DATE")
+    LocalDate incomeDate;
 
-	public String getComments() {
-		return comments;
-	}
+    @Column(name = "OCCURANCE")
+    @Enumerated(EnumType.STRING)
+    Occurance incomeOccurance;
 
-	public void setComments(String comments) {
-		this.comments = comments;
-	}
+    @Column(name = "DEPOSITED_IN")
+    String depositedIn;
 
-	public String getUserId() {
-		return userId;
-	}
+    public String getId() {
+	return id;
+    }
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    public void setId(String id) {
+	this.id = id;
+    }
 
-	public LocalDate getCreationDate() {
-		return creationDate;
-	}
+    public BigDecimal getAmount() {
+	return amount;
+    }
 
-	public void setCreationDate(LocalDate creationDate) {
-		this.creationDate = creationDate;
-	}
+    public void setAmount(BigDecimal amount) {
+	this.amount = amount;
+    }
 
-	public LocalDate getIncomeDate() {
-		return incomeDate;
-	}
+    public IncomeType getIncomeType() {
+	return incomeType;
+    }
 
-	public void setIncomeDate(LocalDate incomeDate) {
-		this.incomeDate = incomeDate;
-	}
+    public void setIncomeType(IncomeType incomeType) {
+	this.incomeType = incomeType;
+    }
 
-	public Occurance getIncomeOccurance() {
-		return incomeOccurance;
-	}
+    public String getComments() {
+	return comments;
+    }
 
-	public void setIncomeOccurance(Occurance incomeOccurance) {
-		this.incomeOccurance = incomeOccurance;
-	}
+    public void setComments(String comments) {
+	this.comments = comments;
+    }
 
-	public String getDepositedIn() {
-		return depositedIn;
-	}
+    public String getUserId() {
+	return userId;
+    }
 
-	public void setDepositedIn(String depositedIn) {
-		this.depositedIn = depositedIn;
-	}
+    public void setUserId(String userId) {
+	this.userId = userId;
+    }
 
-	@Override
-	public String toString() {
-		return "Income [amount=" + amount + ", incomeType=" + incomeType + ", comments=" + comments + ", creationDate="
-				+ creationDate + ", incomeDate=" + incomeDate + ", incomeOccurance=" + incomeOccurance
-				+ ", depositedIn=" + depositedIn + "]";
-	}
-	
-	
+    public LocalDate getCreationDate() {
+	return creationDate;
+    }
+
+    public void setCreationDate(LocalDate creationDate) {
+	this.creationDate = creationDate;
+    }
+
+    public LocalDate getIncomeDate() {
+	return incomeDate;
+    }
+
+    public void setIncomeDate(LocalDate incomeDate) {
+	this.incomeDate = incomeDate;
+    }
+
+    public Occurance getIncomeOccurance() {
+	return incomeOccurance;
+    }
+
+    public void setIncomeOccurance(Occurance incomeOccurance) {
+	this.incomeOccurance = incomeOccurance;
+    }
+
+    public String getDepositedIn() {
+	return depositedIn;
+    }
+
+    public void setDepositedIn(String depositedIn) {
+	this.depositedIn = depositedIn;
+    }
+
+    @Override
+    public String toString() {
+	return "Income [amount=" + amount + ", incomeType=" + incomeType + ", comments=" + comments + ", creationDate="
+		+ creationDate + ", incomeDate=" + incomeDate + ", incomeOccurance=" + incomeOccurance
+		+ ", depositedIn=" + depositedIn + "]";
+    }
+
 }

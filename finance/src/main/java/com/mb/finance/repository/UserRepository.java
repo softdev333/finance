@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 import com.mb.finance.entities.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String>{
+public interface UserRepository extends JpaRepository<User, String> {
 
-	Optional<User> findById(String id);
-	User findByUserName(String userName);
-	
-	
+    Optional<User> findById(String id);
+
+    User findByUserName(String userName);
+
 }

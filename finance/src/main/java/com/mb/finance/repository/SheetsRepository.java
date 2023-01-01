@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 import com.mb.finance.entities.Sheet;
 
 @Repository
-public interface SheetsRepository extends JpaRepository<Sheet, UUID>{
+public interface SheetsRepository extends JpaRepository<Sheet, UUID> {
 
-	Sheet findByUserId(String userId);
-	
+    Sheet findByUserId(String userId);
+
 }

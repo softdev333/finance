@@ -13,13 +13,10 @@ import com.mb.finance.entities.Expense;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, String> {
 
-	List<Expense> findByUserIdOrderByExpenseDateDesc(String userId);
-	
-	List<Expense> findByUserIdOrderByExpenseDateDesc(String userId, Pageable pageable);
-	
-	List<Expense> findByUserIdAndExpenseDateBetween(String userId, LocalDate startDate, LocalDate endDate);
-	
-	//find by 3 parameters: User ID, Expense Date Between 2 dates, ExpenseType which are not in the given list
-	List<Expense> findByUserIdAndExpenseTypeNotInAndExpenseDateBetween(String userId, List<ExpenseType> expenseTypes, LocalDate startDate, LocalDate endDate);
-	
+    List<Expense> findByUserIdAndExpenseTypeNotInOrderByExpenseDateDesc(String userId, List<ExpenseType> expenseTypes);
+
+    List<Expense> findByUserIdAndExpenseTypeNotInOrderByExpenseDateDesc(String userId, List<ExpenseType> expenseTypes, Pageable pageable);
+
+    List<Expense> findByUserIdAndExpenseTypeNotInAndExpenseDateBetween(String userId, List<ExpenseType> expenseTypes, LocalDate startDate, LocalDate endDate);
+
 }

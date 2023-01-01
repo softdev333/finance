@@ -11,18 +11,23 @@ import com.mb.finance.service.BankAccountService;
 
 @Service
 public class BankAccountServiceImpl implements BankAccountService {
-	
-	@Autowired
-	BankAccountRepository bankAccountRepository;
 
-	@Override
-	public BankAccount saveBankAccount(BankAccount bankAccount) {
-		return bankAccountRepository.save(bankAccount);
-	}
+    @Autowired
+    BankAccountRepository bankAccountRepository;
 
-	@Override
-	public List<BankAccount> getAllAccountsForUserId(String userId) {		
-		return bankAccountRepository.findByUserId(userId);
-	}
+    @Override
+    public BankAccount saveBankAccount(BankAccount bankAccount) {
+	return bankAccountRepository.save(bankAccount);
+    }
+
+    @Override
+    public List<BankAccount> getAllAccountsForUserId(String userId) {
+	return bankAccountRepository.findByUserId(userId);
+    }
+
+    @Override
+    public BankAccount findByUserIdAndAccountNumber(String userId, String accountNumber) {
+	return bankAccountRepository.findByUserIdAndAccountNumber(userId, accountNumber);
+    }
 
 }

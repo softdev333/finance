@@ -14,53 +14,58 @@ import com.vaadin.flow.server.VaadinSession;
 
 public class MainLayout extends AppLayout implements RouterLayout {
 
-	public MainLayout() {
-		createHeader();
-		createDrawer();
-	}
+    public MainLayout() {
+	createHeader();
+	createDrawer();
+    }
 
-	private void createHeader() {
-		H1 logo = new H1("Finance");
-		logo.addClassName("logo");
+    private void createHeader() {
+	H1 logo = new H1("Finance");
+	logo.addClassName("logo");
 
-		Button logoutButton = new Button("Logout");
-		logoutButton.addClickListener(event -> {
-			VaadinSession.getCurrent().getSession().invalidate();
-			VaadinSession.getCurrent().close();
-			UI.getCurrent().getPage().setLocation("login");
-		});
-		HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, logoutButton);
+	Button logoutButton = new Button("Logout");
+	logoutButton.addClickListener(event -> {
+	    VaadinSession.getCurrent().getSession().invalidate();
+	    VaadinSession.getCurrent().close();
+	    UI.getCurrent().getPage().setLocation("login");
+	});
+	HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, logoutButton);
 
-		header.expand(logo);
-		header.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
-		header.setWidth("100%");
-		header.addClassName("header");
+	header.expand(logo);
+	header.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
+	header.setWidth("100%");
+	header.addClassName("header");
 
-		addToNavbar(header);
+	addToNavbar(header);
 
-	}
+    }
 
-	private void createDrawer() {
+    private void createDrawer() {
 
-		RouterLink incomeAddLink = new RouterLink("Add Income", AddIncomeView.class);
-		
-		RouterLink allIncomeLink = new RouterLink("Show All Income", ShowIncomeView.class);
+	RouterLink incomeAddLink = new RouterLink("Add Income", AddIncomeView.class);
 
-		RouterLink expenseAddLink = new RouterLink("Add Expense", AddExpenseView.class);
+	RouterLink allIncomeLink = new RouterLink("Show All Income", IncomeView.class);
 
-		RouterLink allExpenseLink = new RouterLink("Show All Expense", ShowExpenseView.class);
+	RouterLink expenseAddLink = new RouterLink("Add Expense", AddExpenseView.class);
 
-		RouterLink balanceSheetLink = new RouterLink("Show Balance Sheet", BalanceSheetView.class);
-		
-		RouterLink bankAccountAddLink = new RouterLink("Add Bank Account", AddBankAccountView.class);
-		
-		RouterLink sheetsLink = new RouterLink("Process Sheets Data", SheetView.class);
+	RouterLink allExpenseLink = new RouterLink("Show All Expense", ExpenseView.class);
 
-		RouterLink sheetsDataLink = new RouterLink("Add Sheets Data", SheetsPanelView.class);
-		
-		RouterLink testLink = new RouterLink("Test Link", SheetsPanelView.class);
+	RouterLink balanceSheetLink = new RouterLink("Show Balance Sheet", BalanceSheetView.class);
 
-		addToDrawer(new VerticalLayout(balanceSheetLink, allIncomeLink, allExpenseLink, incomeAddLink, expenseAddLink, bankAccountAddLink, sheetsDataLink, sheetsLink, testLink));
-	}
+	RouterLink bankAccountAddLink = new RouterLink("Add Bank Account", AddBankAccountView.class);
+
+	RouterLink sheetsLink = new RouterLink("Process Sheets Data", SheetView.class);
+
+	RouterLink sheetsDataLink = new RouterLink("Add Sheets Data", SheetsPanelView.class);
+
+	RouterLink assetsDataLink = new RouterLink("Add Assets", AddAssetView.class);
+
+	RouterLink showAssetsDataLink = new RouterLink("Show Assets", AssetView.class);
+
+	RouterLink transferLink = new RouterLink("Transfer Amount", TransferView.class);
+
+	addToDrawer(new VerticalLayout(balanceSheetLink, allIncomeLink, allExpenseLink, showAssetsDataLink,
+		assetsDataLink, incomeAddLink, expenseAddLink, bankAccountAddLink, sheetsDataLink, sheetsLink, transferLink));
+    }
 
 }

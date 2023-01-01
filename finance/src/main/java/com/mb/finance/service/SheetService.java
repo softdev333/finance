@@ -4,8 +4,8 @@ import com.mb.finance.entities.Sheet;
 
 public interface SheetService {
 
-	Sheet saveSheet(Sheet sheet);
+    Sheet saveSheet(Sheet sheet);
 
-	Sheet findByUserId(String userId);
-	
+    Sheet findByUserId(String userId);
+
 }

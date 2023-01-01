@@ -28,84 +28,85 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Finance Portal")
 public class RegistrationView extends VerticalLayout {
 
-	@Autowired
-	UserService userService;
-	
-	@Autowired
-	BankAccountService bankAccountService;
+    @Autowired
+    UserService userService;
 
-	@Autowired
-	IncomeService incomeService;
-	
-	TextField firstNameTextField = new TextField("First Name");
-	TextField lastNameTextField = new TextField("Last Name");
-	TextField emailTextField = new TextField("Email");
-	TextField usernameTextField = new TextField("Username");
+    @Autowired
+    BankAccountService bankAccountService;
 
-	PasswordField passwordTextField = new PasswordField();
+    @Autowired
+    IncomeService incomeService;
 
-	Button submitButton = new Button("Submit");
+    TextField firstNameTextField = new TextField("First Name");
+    TextField lastNameTextField = new TextField("Last Name");
+    TextField emailTextField = new TextField("Email");
+    TextField usernameTextField = new TextField("Username");
 
-	public RegistrationView(UserService userService) {
+    PasswordField passwordTextField = new PasswordField();
 
-		addClassName("registration-view");
-		setSizeFull();
-		setAlignItems(Alignment.CENTER);
-		setJustifyContentMode(JustifyContentMode.CENTER);
+    Button submitButton = new Button("Submit");
 
-		setId("registration-view");
-		H1 welcomeTitle = new H1("Finance Portal");
+    public RegistrationView(UserService userService) {
 
-		H3 registrationTitle = new H3("Sign Up !");
+	addClassName("registration-view");
+	setSizeFull();
+	setAlignItems(Alignment.CENTER);
+	setJustifyContentMode(JustifyContentMode.CENTER);
 
-		passwordTextField.setLabel("Password");
-		passwordTextField.setPlaceholder("Enter password");
+	setId("registration-view");
+	H1 welcomeTitle = new H1("Finance Portal");
 
-		HorizontalLayout hLayout = new HorizontalLayout(firstNameTextField, lastNameTextField);
+	H3 registrationTitle = new H3("Sign Up !");
 
-		VerticalLayout vLayout = new VerticalLayout(welcomeTitle, registrationTitle, hLayout, emailTextField, usernameTextField, passwordTextField, submitButton);
+	passwordTextField.setLabel("Password");
+	passwordTextField.setPlaceholder("Enter password");
 
-		vLayout.setSizeFull();
-		vLayout.setAlignItems(Alignment.CENTER);
+	HorizontalLayout hLayout = new HorizontalLayout(firstNameTextField, lastNameTextField);
 
-		submitButton.addClickListener(event -> {
+	VerticalLayout vLayout = new VerticalLayout(welcomeTitle, registrationTitle, hLayout, emailTextField,
+		usernameTextField, passwordTextField, submitButton);
 
-			try {
-				User user = new User();
-				user.setFirstName(firstNameTextField.getValue());
-				user.setEmail(emailTextField.getValue());
-				user.setLastName(lastNameTextField.getValue());
-				user.setUserName(usernameTextField.getValue());
-				user.setPassword(passwordTextField.getValue());
+	vLayout.setSizeFull();
+	vLayout.setAlignItems(Alignment.CENTER);
 
-				user = userService.saveUser(user);
-				
-				BankAccount bankAccount = new BankAccount();
-				bankAccount.setAccountNumber(CASH);
-				bankAccount.setBalance(BigDecimal.ZERO);
-				bankAccount.setBankName(CASH);
-				bankAccount.setUserId(user.getId());
-				
-				bankAccountService.saveBankAccount(bankAccount);
-				
-				Notification successNotification = new Notification("Success !");
-				successNotification.setDuration(3000);
-				successNotification.setPosition(Position.MIDDLE);
-				successNotification.open();
-				Thread.sleep(4000);
+	submitButton.addClickListener(event -> {
 
-				UI.getCurrent().navigate("login");
-			} catch (Exception e) {
-				e.printStackTrace();
-				Notification errorNotification = new Notification("Error in creating user");
-				errorNotification.setDuration(3000);
-				errorNotification.setPosition(Position.MIDDLE);
-				errorNotification.open();
-			}
+	    try {
+		User user = new User();
+		user.setFirstName(firstNameTextField.getValue());
+		user.setEmail(emailTextField.getValue());
+		user.setLastName(lastNameTextField.getValue());
+		user.setUserName(usernameTextField.getValue());
+		user.setPassword(passwordTextField.getValue());
 
-		});
+		user = userService.saveUser(user);
 
-		add(vLayout);
-	}
+		BankAccount bankAccount = new BankAccount();
+		bankAccount.setAccountNumber(CASH);
+		bankAccount.setBalance(BigDecimal.ZERO);
+		bankAccount.setBankName(CASH);
+		bankAccount.setUserId(user.getId());
+
+		bankAccountService.saveBankAccount(bankAccount);
+
+		Notification successNotification = new Notification("Success !");
+		successNotification.setDuration(3000);
+		successNotification.setPosition(Position.MIDDLE);
+		successNotification.open();
+		Thread.sleep(4000);
+
+		UI.getCurrent().navigate("login");
+	    } catch (Exception e) {
+		e.printStackTrace();
+		Notification errorNotification = new Notification("Error in creating user");
+		errorNotification.setDuration(3000);
+		errorNotification.setPosition(Position.MIDDLE);
+		errorNotification.open();
+	    }
+
+	});
+
+	add(vLayout);
+    }
 
 }

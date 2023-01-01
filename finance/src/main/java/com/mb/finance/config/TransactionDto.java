@@ -3,98 +3,96 @@ package com.mb.finance.config;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-
 public class TransactionDto {
 
-	String userId;
-	
-	BigDecimal amount = BigDecimal.ZERO;
-	
-	TransactionType transactionType;
-	
-	String comments;
-	
-	LocalDate creationDate;
-	
-	LocalDate transactionDate;
-	
-	String transactionOn;
-	
-	Occurance transactionOccurance;
-	
-	String transactionEndPoint;
+    String userId;
 
-	public String getUserId() {
-		return userId;
-	}
+    BigDecimal amount = BigDecimal.ZERO;
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    TransactionType transactionType;
 
-	public BigDecimal getAmount() {
-		return amount;
-	}
+    String comments;
 
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
-	}
+    LocalDate creationDate;
 
-	public TransactionType getTransactionType() {
-		return transactionType;
-	}
+    LocalDate transactionDate;
 
-	public void setTransactionType(TransactionType transactionType) {
-		this.transactionType = transactionType;
-	}
+    String transactionOn;
 
-	public String getComments() {
-		return comments;
-	}
+    Occurance transactionOccurance;
 
-	public void setComments(String comments) {
-		this.comments = comments;
-	}
+    String transactionEndPoint;
 
-	public LocalDate getCreationDate() {
-		return creationDate;
-	}
+    public String getUserId() {
+	return userId;
+    }
 
-	public void setCreationDate(LocalDate creationDate) {
-		this.creationDate = creationDate;
-	}
+    public void setUserId(String userId) {
+	this.userId = userId;
+    }
 
-	public LocalDate getTransactionDate() {
-		return transactionDate;
-	}
+    public BigDecimal getAmount() {
+	return amount;
+    }
 
-	public void setTransactionDate(LocalDate transactionDate) {
-		this.transactionDate = transactionDate;
-	}
+    public void setAmount(BigDecimal amount) {
+	this.amount = amount;
+    }
 
-	public Occurance getTransactionOccurance() {
-		return transactionOccurance;
-	}
+    public TransactionType getTransactionType() {
+	return transactionType;
+    }
 
-	public void setTransactionOccurance(Occurance transactionOccurance) {
-		this.transactionOccurance = transactionOccurance;
-	}
+    public void setTransactionType(TransactionType transactionType) {
+	this.transactionType = transactionType;
+    }
 
-	public String getTransactionEndPoint() {
-		return transactionEndPoint;
-	}
+    public String getComments() {
+	return comments;
+    }
 
-	public void setTransactionEndPoint(String transactionEndPoint) {
-		this.transactionEndPoint = transactionEndPoint;
-	}
+    public void setComments(String comments) {
+	this.comments = comments;
+    }
 
-	public String getTransactionOn() {
-		return transactionOn;
-	}
+    public LocalDate getCreationDate() {
+	return creationDate;
+    }
 
-	public void setTransactionOn(String transactionOn) {
-		this.transactionOn = transactionOn;
-	}
-	
-	
+    public void setCreationDate(LocalDate creationDate) {
+	this.creationDate = creationDate;
+    }
+
+    public LocalDate getTransactionDate() {
+	return transactionDate;
+    }
+
+    public void setTransactionDate(LocalDate transactionDate) {
+	this.transactionDate = transactionDate;
+    }
+
+    public Occurance getTransactionOccurance() {
+	return transactionOccurance;
+    }
+
+    public void setTransactionOccurance(Occurance transactionOccurance) {
+	this.transactionOccurance = transactionOccurance;
+    }
+
+    public String getTransactionEndPoint() {
+	return transactionEndPoint;
+    }
+
+    public void setTransactionEndPoint(String transactionEndPoint) {
+	this.transactionEndPoint = transactionEndPoint;
+    }
+
+    public String getTransactionOn() {
+	return transactionOn;
+    }
+
+    public void setTransactionOn(String transactionOn) {
+	this.transactionOn = transactionOn;
+    }
+
 }

@@ -23,48 +23,48 @@ import com.vaadin.flow.server.VaadinSession;
 @PageTitle("Finance : Login")
 public class LoginView extends VerticalLayout {
 
-	@Autowired
-	UserService userService;
-	
-	@Autowired
-	IncomeService incomeService;
+    @Autowired
+    UserService userService;
 
-	public LoginView(UserService userService) {
-		addClassName("login-view");
-		setSizeFull();
-		setAlignItems(Alignment.CENTER);
-		setJustifyContentMode(JustifyContentMode.CENTER);
+    @Autowired
+    IncomeService incomeService;
 
-		H2 loginWelcome = new H2("Login");
+    public LoginView(UserService userService) {
+	addClassName("login-view");
+	setSizeFull();
+	setAlignItems(Alignment.CENTER);
+	setJustifyContentMode(JustifyContentMode.CENTER);
 
-		TextField usernameField = new TextField();
-		usernameField.setPlaceholder("Username");
-		PasswordField passwordField = new PasswordField();
-		passwordField.setPlaceholder("Password");
+	H2 loginWelcome = new H2("Login");
 
-		Button submitButton = new Button("Submit");
+	TextField usernameField = new TextField();
+	usernameField.setPlaceholder("Username");
+	PasswordField passwordField = new PasswordField();
+	passwordField.setPlaceholder("Password");
 
-		Button loginRedirect = new Button("New User ? Sign Up here");
-		loginRedirect.addClickListener(event -> {
-			UI.getCurrent().navigate("registration");
-		});
+	Button submitButton = new Button("Submit");
 
-		submitButton.addClickListener(event -> {
-			String userId = userService.authenticate(usernameField.getValue(), passwordField.getValue());
-			if (!StringUtils.isEmpty(userId)) {
-					
-				VaadinSession.getCurrent().setAttribute(USER_ID, userId);
-				UI.getCurrent().navigate("showbalancesheet");
-			} else {
-				Notification errorNotification = new Notification("Wrong Credentials ! Try Again");
-				errorNotification.setDuration(2000);
-				errorNotification.open();
-				usernameField.setValue("");
-				passwordField.setValue("");
-			}
-		});
+	Button loginRedirect = new Button("New User ? Sign Up here");
+	loginRedirect.addClickListener(event -> {
+	    UI.getCurrent().navigate("registration");
+	});
 
-		add(new H1("Finance Portal"), loginWelcome, usernameField, passwordField, submitButton, loginRedirect);
-	}
+	submitButton.addClickListener(event -> {
+	    String userId = userService.authenticate(usernameField.getValue(), passwordField.getValue());
+	    if (!StringUtils.isEmpty(userId)) {
+
+		VaadinSession.getCurrent().setAttribute(USER_ID, userId);
+		UI.getCurrent().navigate("showbalancesheet");
+	    } else {
+		Notification errorNotification = new Notification("Wrong Credentials ! Try Again");
+		errorNotification.setDuration(2000);
+		errorNotification.open();
+		usernameField.setValue("");
+		passwordField.setValue("");
+	    }
+	});
+
+	add(new H1("Finance Portal"), loginWelcome, usernameField, passwordField, submitButton, loginRedirect);
+    }
 
 }

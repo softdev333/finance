@@ -5,79 +5,76 @@ import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Id;
-
 @Entity
-@Table(name="BANK_ACCOUNT")
+@Table(name = "BANK_ACCOUNT")
 public class BankAccount {
 
-	@Id
-	@GeneratedValue(generator="system-uuid")
-	@GenericGenerator(name="system-uuid", strategy = "uuid")
-	String id;
-	
-	@Column(name = "BANK_NAME")
-	String bankName;
-	
-	@Column(name = "USER_ID")
-	String userId;
-	
-	@Column(name = "ACCOUNT_NUMBER")
-	String accountNumber;
-	
-	@Column(name = "BALANCE")
-	BigDecimal balance = BigDecimal.ZERO;
+    @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    String id;
 
-	public String getId() {
-		return id;
-	}
+    @Column(name = "BANK_NAME")
+    String bankName;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    @Column(name = "USER_ID")
+    String userId;
 
-	public String getUserId() {
-		return userId;
-	}
+    @Column(name = "ACCOUNT_NUMBER")
+    String accountNumber;
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    @Column(name = "BALANCE")
+    BigDecimal balance = BigDecimal.ZERO;
 
-	public String getBankName() {
-		return bankName;
-	}
+    public String getId() {
+	return id;
+    }
 
-	public void setBankName(String bankName) {
-		this.bankName = bankName;
-	}
+    public void setId(String id) {
+	this.id = id;
+    }
 
-	public String getAccountNumber() {
-		return accountNumber;
-	}
+    public String getUserId() {
+	return userId;
+    }
 
-	public void setAccountNumber(String accountNumber) {
-		this.accountNumber = accountNumber;
-	}
+    public void setUserId(String userId) {
+	this.userId = userId;
+    }
 
-	public BigDecimal getBalance() {
-		return balance;
-	}
+    public String getBankName() {
+	return bankName;
+    }
 
-	public void setBalance(BigDecimal balance) {
-		this.balance = balance;
-	}
+    public void setBankName(String bankName) {
+	this.bankName = bankName;
+    }
 
-	@Override
-	public String toString() {
-		return "BankAccount [bankName=" + bankName + ", userId=" + userId + ", accountNumber=" + accountNumber
-				+ ", balance=" + balance + "]";
-	}
+    public String getAccountNumber() {
+	return accountNumber;
+    }
 
-	
-	
+    public void setAccountNumber(String accountNumber) {
+	this.accountNumber = accountNumber;
+    }
+
+    public BigDecimal getBalance() {
+	return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+	this.balance = balance;
+    }
+
+    @Override
+    public String toString() {
+	return "BankAccount [bankName=" + bankName + ", userId=" + userId + ", accountNumber=" + accountNumber
+		+ ", balance=" + balance + "]";
+    }
+
 }

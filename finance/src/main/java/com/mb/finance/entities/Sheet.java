@@ -10,68 +10,65 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name  = "Sheet")
+@Table(name = "Sheet")
 public class Sheet {
 
-	@Id
-	@GeneratedValue(generator="system-uuid")
-	@GenericGenerator(name="system-uuid", strategy = "uuid")
-	String id;
-	
-	@Column(name = "USER_ID")
-	String userId;
-	
-	@Column(name = "ROW_NO")
-	Integer rowNumber;
+    @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    String id;
 
-	@Lob
-	@Column(columnDefinition = "text", name = "GOOGLE_SHEETS_CLIENT_SECRET_JSON")
-	String sheetsClientSecretJsonString;
-	
-	@Column(name = "SHEET_ID")
-	String sheetId;
-	
+    @Column(name = "USER_ID")
+    String userId;
 
-	public String getId() {
-		return id;
-	}
+    @Column(name = "ROW_NO")
+    Integer rowNumber;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    @Lob
+    @Column(columnDefinition = "text", name = "GOOGLE_SHEETS_CLIENT_SECRET_JSON")
+    String sheetsClientSecretJsonString;
 
-	public String getUserId() {
-		return userId;
-	}
+    @Column(name = "SHEET_ID")
+    String sheetId;
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    public String getId() {
+	return id;
+    }
 
-	public Integer getRowNumber() {
-		return rowNumber;
-	}
+    public void setId(String id) {
+	this.id = id;
+    }
 
-	public void setRowNumber(Integer rowNumber) {
-		this.rowNumber = rowNumber;
-	}
+    public String getUserId() {
+	return userId;
+    }
 
-	public String getSheetsClientSecretJsonString() {
-		return sheetsClientSecretJsonString;
-	}
+    public void setUserId(String userId) {
+	this.userId = userId;
+    }
 
-	public void setSheetsClientSecretJsonString(String sheetsClientSecretJsonString) {
-		this.sheetsClientSecretJsonString = sheetsClientSecretJsonString;
-	}
+    public Integer getRowNumber() {
+	return rowNumber;
+    }
 
-	public String getSheetId() {
-		return sheetId;
-	}
+    public void setRowNumber(Integer rowNumber) {
+	this.rowNumber = rowNumber;
+    }
 
-	public void setSheetId(String sheetId) {
-		this.sheetId = sheetId;
-	}
+    public String getSheetsClientSecretJsonString() {
+	return sheetsClientSecretJsonString;
+    }
 
-	
-	
+    public void setSheetsClientSecretJsonString(String sheetsClientSecretJsonString) {
+	this.sheetsClientSecretJsonString = sheetsClientSecretJsonString;
+    }
+
+    public String getSheetId() {
+	return sheetId;
+    }
+
+    public void setSheetId(String sheetId) {
+	this.sheetId = sheetId;
+    }
+
 }

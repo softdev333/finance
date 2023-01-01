@@ -36,97 +36,98 @@ import com.vaadin.flow.server.VaadinSession;
 @PageTitle("Finance : Add Income")
 public class AddIncomeView extends VerticalLayout implements BeforeEnterObserver {
 
-	@Autowired
-	IncomeService incomeService;
-	
-	@Autowired
-	BankAccountService bankAccountService;
+    @Autowired
+    IncomeService incomeService;
 
-	H2 pageTitle = new H2("Add Income");
+    @Autowired
+    BankAccountService bankAccountService;
 
-	TextField amountTextField = new TextField("Enter Amount");
+    H2 pageTitle = new H2("Add Income");
 
-	ComboBox<String> depositedInOptionsField = new ComboBox<String>("Where did you deposit it ?");
+    TextField amountTextField = new TextField("Enter Amount");
 
-	TextArea commentsTextArea = new TextArea("Enter comments");
+    ComboBox<String> depositedInOptionsField = new ComboBox<String>("Where did you deposit it ?");
 
-	ComboBox<IncomeType> incomeTypeBox = new ComboBox<IncomeType>("Type of income");
+    TextArea commentsTextArea = new TextArea("Enter comments");
 
-	ComboBox<Occurance> incomeOccurenceBox = new ComboBox<Occurance>("Occurence of income");
+    ComboBox<IncomeType> incomeTypeBox = new ComboBox<IncomeType>("Type of income");
 
-	DatePicker incomeDatePicker = new DatePicker("Income Date");
+    ComboBox<Occurance> incomeOccurenceBox = new ComboBox<Occurance>("Occurence of income");
 
-	Button submitButton = new Button("Add Income");
+    DatePicker incomeDatePicker = new DatePicker("Income Date");
 
-	@Override
-	public void beforeEnter(BeforeEnterEvent arg0) {
-		if (StringUtils.isEmpty((String) VaadinSession.getCurrent().getAttribute(USER_ID))) {
-			Notification errorNotification = new Notification("No user. Proceed to login", 3000, Position.MIDDLE);
-			errorNotification.open();
-			arg0.rerouteTo(LoginView.class);
-		}
+    Button submitButton = new Button("Add Income");
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent arg0) {
+	if (StringUtils.isEmpty((String) VaadinSession.getCurrent().getAttribute(USER_ID))) {
+	    Notification errorNotification = new Notification("No user. Proceed to login", 3000, Position.MIDDLE);
+	    errorNotification.open();
+	    arg0.rerouteTo(LoginView.class);
 	}
+    }
 
-	public AddIncomeView(BankAccountService bankAccountService) {
+    public AddIncomeView(BankAccountService bankAccountService) {
 
-		incomeTypeBox.setItems(IncomeType.values());
-		incomeTypeBox.setWidth("35%");
-		incomeOccurenceBox.setItems(Occurance.values());
-		incomeOccurenceBox.setWidth("35%");
-		
-		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
-		List<BankAccount> bankAccounts = bankAccountService.getAllAccountsForUserId(userId);
-		List<String> bankAccountNumbers = bankAccounts.stream().map(e->e.getAccountNumber()).collect(Collectors.toList());
-		
-		depositedInOptionsField.setItems(bankAccountNumbers);
+	incomeTypeBox.setItems(IncomeType.values());
+	incomeTypeBox.setWidth("35%");
+	incomeOccurenceBox.setItems(Occurance.values());
+	incomeOccurenceBox.setWidth("35%");
 
-		incomeDatePicker.setWidth("30%");
+	String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
+	List<BankAccount> bankAccounts = bankAccountService.getAllAccountsForUserId(userId);
+	List<String> bankAccountNumbers = bankAccounts.stream().map(e -> e.getAccountNumber())
+		.collect(Collectors.toList());
 
-		commentsTextArea.setWidth("30%");
-		commentsTextArea.getStyle().set("minHeight", "125px");
+	depositedInOptionsField.setItems(bankAccountNumbers);
 
-		submitButton.addClickListener(event -> {
-			createIncomeObject();
-		});
+	incomeDatePicker.setWidth("30%");
 
-		HorizontalLayout h1 = new HorizontalLayout(amountTextField, depositedInOptionsField);
+	commentsTextArea.setWidth("30%");
+	commentsTextArea.getStyle().set("minHeight", "125px");
 
-		HorizontalLayout h2 = new HorizontalLayout(incomeTypeBox, incomeOccurenceBox, incomeDatePicker);
+	submitButton.addClickListener(event -> {
+	    createIncomeObject();
+	});
 
-		add(pageTitle, h1, h2, commentsTextArea, submitButton);
+	HorizontalLayout h1 = new HorizontalLayout(amountTextField, depositedInOptionsField);
+
+	HorizontalLayout h2 = new HorizontalLayout(incomeTypeBox, incomeOccurenceBox, incomeDatePicker);
+
+	add(pageTitle, h1, h2, commentsTextArea, submitButton);
+    }
+
+    public void createIncomeObject() {
+	Income income = new Income();
+	income.setAmount(new BigDecimal(amountTextField.getValue()));
+	income.setIncomeDate(incomeDatePicker.getValue());
+	income.setUserId((String) VaadinSession.getCurrent().getAttribute(USER_ID));
+	income.setIncomeType(incomeTypeBox.getValue());
+	income.setComments(commentsTextArea.getValue());
+	income.setIncomeOccurance(incomeOccurenceBox.getValue());
+	income.setDepositedIn(depositedInOptionsField.getValue());
+
+	try {
+	    incomeService.addNewIncome(income);
+	    Notification successNotification = new Notification("Income Added successfully", 5000, Position.MIDDLE);
+	    successNotification.open();
+	    setDefaultValue();
+
+	} catch (Exception e) {
+	    Notification errorNotification = new Notification("Error in Adding Income", 5000, Position.MIDDLE);
+	    errorNotification.open();
+
+	    e.printStackTrace();
 	}
+    }
 
-	public void createIncomeObject() {
-		Income income = new Income();
-		income.setAmount(new BigDecimal(amountTextField.getValue()));
-		income.setIncomeDate(incomeDatePicker.getValue());
-		income.setUserId((String) VaadinSession.getCurrent().getAttribute(USER_ID));
-		income.setIncomeType(incomeTypeBox.getValue());
-		income.setComments(commentsTextArea.getValue());
-		income.setIncomeOccurance(incomeOccurenceBox.getValue());
-		income.setDepositedIn(depositedInOptionsField.getValue());
-
-		try {
-			incomeService.addNewIncome(income);
-			Notification successNotification = new Notification("Income Added successfully", 5000, Position.MIDDLE);
-			successNotification.open();
-			setDefaultValue();
-
-		} catch (Exception e) {
-			Notification errorNotification = new Notification("Error in Adding Income", 5000, Position.MIDDLE);
-			errorNotification.open();
-
-			e.printStackTrace();
-		}
-	}
-
-	public void setDefaultValue() {
-		amountTextField.setValue("");
-		depositedInOptionsField.setValue(null);
-		commentsTextArea.setValue("");
-		incomeTypeBox.setValue(null);
-		incomeOccurenceBox.setValue(null);
-		incomeDatePicker.setValue(LocalDate.now());
-	}
+    public void setDefaultValue() {
+	amountTextField.setValue("");
+	depositedInOptionsField.setValue(null);
+	commentsTextArea.setValue("");
+	incomeTypeBox.setValue(null);
+	incomeOccurenceBox.setValue(null);
+	incomeDatePicker.setValue(LocalDate.now());
+    }
 
 }

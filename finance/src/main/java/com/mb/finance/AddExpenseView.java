@@ -36,107 +36,107 @@ import com.vaadin.flow.server.VaadinSession;
 @PageTitle("Finance : Add Expense")
 public class AddExpenseView extends VerticalLayout implements BeforeEnterObserver {
 
-	@Autowired
-	ExpenseService expenseService;
-	
-	@Autowired
-	BankAccountService bankAccountService;
+    @Autowired
+    ExpenseService expenseService;
 
-	H2 pageTitle = new H2("Add Expense");
+    @Autowired
+    BankAccountService bankAccountService;
 
-	TextField amountTextField = new TextField("Enter Amount");
+    H2 pageTitle = new H2("Add Expense");
 
-	ComboBox<String> withdrawnFromOptionsField = new ComboBox<String>("How did you pay ?");
+    TextField amountTextField = new TextField("Enter Amount");
 
-	TextArea commentsTextArea = new TextArea("Enter comments");
+    ComboBox<String> withdrawnFromOptionsField = new ComboBox<String>("How did you pay ?");
 
-	ComboBox<ExpenseType> expenseTypeBox = new ComboBox<ExpenseType>("Type of Expense");
+    TextArea commentsTextArea = new TextArea("Enter comments");
 
-	ComboBox<Occurance> expenseOccurenceBox = new ComboBox<Occurance>("Occurence of Expense");
+    ComboBox<ExpenseType> expenseTypeBox = new ComboBox<ExpenseType>("Type of Expense");
 
-	DatePicker expenseDatePicker = new DatePicker("Set date of Expense");
+    ComboBox<Occurance> expenseOccurenceBox = new ComboBox<Occurance>("Occurence of Expense");
 
-	Button submitButton = new Button("Add Expense");
-	
-	RadioButtonGroup<String> radioGroupHelperText = new RadioButtonGroup<>();
-	
+    DatePicker expenseDatePicker = new DatePicker("Set date of Expense");
 
-	@Override
-	public void beforeEnter(BeforeEnterEvent arg0) {
+    Button submitButton = new Button("Add Expense");
 
-		if (StringUtils.isEmpty((String) VaadinSession.getCurrent().getAttribute(USER_ID))) {
-			Notification errorNotification = new Notification("No user. Proceed to login", 3000, Position.MIDDLE);
-			errorNotification.open();
-			arg0.rerouteTo(LoginView.class);
-		}
+    RadioButtonGroup<String> radioGroupHelperText = new RadioButtonGroup<>();
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent arg0) {
+
+	if (StringUtils.isEmpty((String) VaadinSession.getCurrent().getAttribute(USER_ID))) {
+	    Notification errorNotification = new Notification("No user. Proceed to login", 3000, Position.MIDDLE);
+	    errorNotification.open();
+	    arg0.rerouteTo(LoginView.class);
+	}
+    }
+
+    public AddExpenseView(ExpenseService expenseService, BankAccountService bankAccountService) {
+
+	expenseTypeBox.setItems(ExpenseType.values());
+	expenseOccurenceBox.setItems(Occurance.values());
+
+	commentsTextArea.setWidth("40%");
+	commentsTextArea.getStyle().set("minHeight", "150px");
+
+	amountTextField.setWidth("60%");
+	expenseTypeBox.setWidth("40%");
+
+	String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
+	List<BankAccount> bankAccounts = bankAccountService.getAllAccountsForUserId(userId);
+	List<String> bankAccountNumbers = bankAccounts.stream().map(e -> e.getAccountNumber())
+		.collect(Collectors.toList());
+
+	withdrawnFromOptionsField.setItems(bankAccountNumbers);
+
+	submitButton.addClickListener(event -> {
+	    createExpenseObject(expenseService);
+	});
+
+	HorizontalLayout hl1 = new HorizontalLayout(amountTextField, expenseTypeBox);
+	HorizontalLayout hl2 = new HorizontalLayout(expenseOccurenceBox, withdrawnFromOptionsField, expenseDatePicker);
+
+	add(pageTitle, hl1, hl2, commentsTextArea, submitButton);
+    }
+
+    public void setDefaultValues() {
+
+	radioGroupHelperText.setLabel("Paid in Cash");
+	radioGroupHelperText.setItems("Yes", "No");
+
+	amountTextField.setValue("");
+	commentsTextArea.setValue("");
+	expenseTypeBox.setValue(null);
+	expenseOccurenceBox.setValue(null);
+	expenseDatePicker.setValue(null);
+	withdrawnFromOptionsField.setValue(null);
+    }
+
+    public void createExpenseObject(ExpenseService expenseService) {
+	Expense expense = new Expense();
+	expense.setUserId((String) VaadinSession.getCurrent().getAttribute(USER_ID));
+	expense.setAmount(new BigDecimal(amountTextField.getValue()));
+	expense.setComments(commentsTextArea.getValue());
+	expense.setExpenseOccurance(expenseOccurenceBox.getValue());
+	expense.setExpenseType(expenseTypeBox.getValue());
+	expense.setExpenseDate(expenseDatePicker.getValue());
+	expense.setWithdrawnFrom(withdrawnFromOptionsField.getValue());
+
+	try {
+	    expenseService.addExpense(expense);
+
+	    setDefaultValues();
+
+	    Notification successNotification = new Notification("Expense Added successfully", 5000, Position.MIDDLE);
+	    successNotification.open();
+
+	} catch (Exception e) {
+
+	    Notification errorNotification = new Notification("Error in Adding Expense", 5000, Position.MIDDLE);
+	    errorNotification.open();
+
+	    e.printStackTrace();
 	}
 
-	public AddExpenseView(ExpenseService expenseService, BankAccountService bankAccountService) {
-
-		expenseTypeBox.setItems(ExpenseType.values());
-		expenseOccurenceBox.setItems(Occurance.values());
-
-		commentsTextArea.setWidth("40%");
-		commentsTextArea.getStyle().set("minHeight", "150px");
-
-		amountTextField.setWidth("60%");
-		expenseTypeBox.setWidth("40%");
-		
-		String userId = (String) VaadinSession.getCurrent().getAttribute(USER_ID);
-		List<BankAccount> bankAccounts = bankAccountService.getAllAccountsForUserId(userId);
-		List<String> bankAccountNumbers = bankAccounts.stream().map(e->e.getAccountNumber()).collect(Collectors.toList());
-		
-		withdrawnFromOptionsField.setItems(bankAccountNumbers);
-
-		submitButton.addClickListener(event -> {
-			createExpenseObject(expenseService);
-		});
-
-		HorizontalLayout hl1 = new HorizontalLayout(amountTextField, expenseTypeBox);
-		HorizontalLayout hl2 = new HorizontalLayout(expenseOccurenceBox, withdrawnFromOptionsField, expenseDatePicker);
-
-		add(pageTitle, hl1, hl2, commentsTextArea, submitButton);
-	}
-
-	public void setDefaultValues() {
-		
-		radioGroupHelperText.setLabel("Paid in Cash");
-		radioGroupHelperText.setItems("Yes", "No");
-		
-		amountTextField.setValue("");
-		commentsTextArea.setValue("");
-		expenseTypeBox.setValue(null);
-		expenseOccurenceBox.setValue(null);
-		expenseDatePicker.setValue(null);
-		withdrawnFromOptionsField.setValue(null);
-	}
-
-	public void createExpenseObject(ExpenseService expenseService) {
-		Expense expense = new Expense();
-		expense.setUserId((String) VaadinSession.getCurrent().getAttribute(USER_ID));
-		expense.setAmount(new BigDecimal(amountTextField.getValue()));
-		expense.setComments(commentsTextArea.getValue());
-		expense.setExpenseOccurance(expenseOccurenceBox.getValue());
-		expense.setExpenseType(expenseTypeBox.getValue());
-		expense.setExpenseDate(expenseDatePicker.getValue());
-		expense.setWithdrawnFrom(withdrawnFromOptionsField.getValue());
-
-		try {
-			expenseService.addExpense(expense);
-
-			setDefaultValues();
-
-			Notification successNotification = new Notification("Expense Added successfully", 5000, Position.MIDDLE);
-			successNotification.open();
-
-		} catch (Exception e) {
-
-			Notification errorNotification = new Notification("Error in Adding Expense", 5000, Position.MIDDLE);
-			errorNotification.open();
-
-			e.printStackTrace();
-		}
-
-	}
+    }
 
 }
