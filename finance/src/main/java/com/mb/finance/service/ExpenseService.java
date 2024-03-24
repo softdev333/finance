@@ -1,29 +1,115 @@
 package com.mb.finance.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.mb.finance.config.ExpenseType;
 import com.mb.finance.entities.Expense;
+import com.mb.finance.repository.ExpenseRepository;
 
-public interface ExpenseService {
+@Service
+public class ExpenseService {
 
-    Expense addExpense(Expense expense) throws Exception;
+	@Autowired
+	ExpenseRepository expenseRepository;
 
-    List<Expense> getExpensesByUserId(String userId);
+	@Transactional
+	public Expense addExpense(Expense expense) throws Exception {
 
-    List<Expense> getExpensesByUserId(String userId, Pageable pageable);
+		if (StringUtils.isBlank(expense.getUserId())) {
+			throw new Exception("No User Found");
+		}
 
-    BigDecimal getAllExpensesForCurrentMonthForUser(String userId, LocalDate expenseDate);
+		if (expense.getAmount().compareTo(BigDecimal.ZERO) == -1) {
+			throw new Exception("Amount cannot be negative");
+		}
 
-    BigDecimal getTotalExpenseByUserId(String userId);
+		if (expense.getExpenseDate() == null) {
+			expense.setExpenseDate(LocalDate.now());
+		}
 
-    Boolean deleteExpense(Expense expense);
+		expense.setCreationDate(LocalDate.now());
+		return expenseRepository.save(expense);
+	}
 
-    void saveAllExpenses(List<Expense> expenseList);
+	public List<Expense> getExpensesByUserId(String userId) {
+		List<ExpenseType> expenseTypesToExclude = Arrays.asList(ExpenseType.CONVERSION);
+		return expenseRepository.findByUserIdAndExpenseTypeNotInOrderByExpenseDateDesc(userId, expenseTypesToExclude);
+	}
 
-    BigDecimal getAverageDailySpend(String userId, LocalDate currentDate);
+	public List<Expense> getExpensesByUserId(String userId, Pageable pageable) {
+		List<ExpenseType> expenseTypesToExclude = Arrays.asList(ExpenseType.CONVERSION);
+		return expenseRepository.findByUserIdAndExpenseTypeNotInOrderByExpenseDateDesc(userId, expenseTypesToExclude,
+				pageable);
+	}
+
+	public BigDecimal getAllExpensesForCurrentMonthForUser(String userId, LocalDate currentDate) {
+
+		List<ExpenseType> expenseTypesToExclude = Arrays.asList(ExpenseType.CONVERSION);
+		LocalDate start = currentDate.withDayOfMonth(1);
+		LocalDate end = currentDate.withDayOfMonth(currentDate.getMonth().length(currentDate.isLeapYear()));
+		List<Expense> expenses = expenseRepository.findByUserIdAndExpenseTypeNotInAndExpenseDateBetween(userId,
+				expenseTypesToExclude, start, end);
+
+		BigDecimal resultBigDecimal = BigDecimal.ZERO;
+
+		for (Expense expense : expenses) {
+			resultBigDecimal = resultBigDecimal.add(expense.getAmount());
+		}
+
+		return resultBigDecimal;
+	}
+
+	public BigDecimal getTotalExpenseByUserId(String userId) {
+
+		List<ExpenseType> expenseTypesToExclude = Arrays.asList(ExpenseType.CONVERSION);
+		List<Expense> allExpenses = expenseRepository.findByUserIdAndExpenseTypeNotInOrderByExpenseDateDesc(userId,
+				expenseTypesToExclude);
+		BigDecimal result = new BigDecimal(0);
+
+		for (Expense expense : allExpenses) {
+			result = result.add(expense.getAmount());
+		}
+
+		return result;
+	}
+
+	public Boolean deleteExpense(Expense expense) {
+		expenseRepository.delete(expense);
+		return true;
+	}
+
+	public void saveAllExpenses(List<Expense> expenseList) {
+		expenseRepository.saveAll(expenseList);
+	}
+
+	public BigDecimal getAverageMonthlySpend(String userId, LocalDate currentDate) {
+		List<ExpenseType> expenseTypesToExclude = Arrays.asList(ExpenseType.CONVERSION);
+		LocalDate start = currentDate.withDayOfMonth(1);
+		LocalDate end = currentDate.withDayOfMonth(currentDate.getMonth().length(currentDate.isLeapYear()));
+
+		List<Expense> expenses = expenseRepository.findByUserIdAndExpenseTypeNotInAndExpenseDateBetween(userId,
+				expenseTypesToExclude, start, end);
+
+		BigDecimal resultBigDecimal = BigDecimal.ZERO;
+
+		for (Expense expense : expenses) {
+			resultBigDecimal = resultBigDecimal.add(expense.getAmount());
+		}
+
+		long daysBetween = ChronoUnit.DAYS.between(start, currentDate) + 1;
+
+		return resultBigDecimal.divide(new BigDecimal(daysBetween), 2, RoundingMode.HALF_DOWN);
+	}
 
 }

@@ -1,6 +1,7 @@
 package com.mb.finance.entities;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -14,67 +15,89 @@ import jakarta.persistence.Table;
 @Table(name = "BANK_ACCOUNT")
 public class BankAccount {
 
-    @Id
-    @GeneratedValue(generator = "system-uuid")
-    @GenericGenerator(name = "system-uuid", strategy = "uuid")
-    String id;
+	@Id
+	@GeneratedValue(generator = "system-uuid")
+	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	String id;
 
-    @Column(name = "BANK_NAME")
-    String bankName;
+	@Column(name = "BANK_NAME")
+	String bankName;
 
-    @Column(name = "USER_ID")
-    String userId;
+	@Column(name = "USER_ID")
+	String userId;
 
-    @Column(name = "ACCOUNT_NUMBER")
-    String accountNumber;
+	@Column(name = "ACCOUNT_NUMBER")
+	String accountNumber;
 
-    @Column(name = "BALANCE")
-    BigDecimal balance = BigDecimal.ZERO;
+	@Column(name = "BALANCE")
+	BigDecimal balance = BigDecimal.ZERO;
 
-    public String getId() {
-	return id;
-    }
+	@Column(name = "CREATION_DATE")
+	LocalDate creationDate;
 
-    public void setId(String id) {
-	this.id = id;
-    }
+	@Column(name = "LAST_MODIFIED_DATE")
+	LocalDate lastModifiedDate;
 
-    public String getUserId() {
-	return userId;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public void setUserId(String userId) {
-	this.userId = userId;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public String getBankName() {
-	return bankName;
-    }
+	public String getUserId() {
+		return userId;
+	}
 
-    public void setBankName(String bankName) {
-	this.bankName = bankName;
-    }
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 
-    public String getAccountNumber() {
-	return accountNumber;
-    }
+	public String getBankName() {
+		return bankName;
+	}
 
-    public void setAccountNumber(String accountNumber) {
-	this.accountNumber = accountNumber;
-    }
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
 
-    public BigDecimal getBalance() {
-	return balance;
-    }
+	public String getAccountNumber() {
+		return accountNumber;
+	}
 
-    public void setBalance(BigDecimal balance) {
-	this.balance = balance;
-    }
+	public void setAccountNumber(String accountNumber) {
+		this.accountNumber = accountNumber;
+	}
 
-    @Override
-    public String toString() {
-	return "BankAccount [bankName=" + bankName + ", userId=" + userId + ", accountNumber=" + accountNumber
-		+ ", balance=" + balance + "]";
-    }
+	public BigDecimal getBalance() {
+		return balance;
+	}
+
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
+	}
+
+	public LocalDate getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(LocalDate creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public LocalDate getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(LocalDate lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
+	@Override
+	public String toString() {
+		return "BankAccount [bankName=" + bankName + ", userId=" + userId + ", accountNumber=" + accountNumber
+				+ ", balance=" + balance + "]";
+	}
 
 }

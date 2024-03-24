@@ -14,27 +14,27 @@ import com.mb.finance.repository.AssetRepository;
 @Service
 public class AssetService {
 
-    @Autowired
-    AssetRepository assetRepository;
+	@Autowired
+	AssetRepository assetRepository;
 
-    public List<Asset> findByUserId(String userId) {
-	return assetRepository.findByUserId(userId);
-    }
-
-    public Asset saveAsset(Asset asset) throws Exception {
-	if (StringUtils.isBlank(asset.getUserId())) {
-	    throw new Exception("No User Found");
+	public List<Asset> findByUserId(String userId) {
+		return assetRepository.findByUserId(userId);
 	}
 
-	if (asset.getCostPrice().compareTo(BigDecimal.ZERO) == -1) {
-	    throw new Exception("Amount cannot be negative");
-	}
+	public Asset saveAsset(Asset asset) throws Exception {
+		if (StringUtils.isBlank(asset.getUserId())) {
+			throw new Exception("No User Found");
+		}
 
-	if (asset.getPurchaseDate() == null) {
-	    asset.setPurchaseDate(LocalDate.now());
-	}
+		if (asset.getCostPrice().compareTo(BigDecimal.ZERO) == -1) {
+			throw new Exception("Amount cannot be negative");
+		}
 
-	return assetRepository.save(asset);
-    }
+		if (asset.getPurchaseDate() == null) {
+			asset.setPurchaseDate(LocalDate.now());
+		}
+
+		return assetRepository.save(asset);
+	}
 
 }

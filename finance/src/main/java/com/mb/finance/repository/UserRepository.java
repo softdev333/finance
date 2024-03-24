@@ -5,13 +5,13 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.mb.finance.entities.User;
+import com.mb.finance.entities.FinanceUser;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<FinanceUser, String> {
 
-    Optional<User> findById(String id);
+	Optional<FinanceUser> findById(String id);
 
-    User findByUserName(String userName);
+	Optional<FinanceUser> findByUserId(String userId);
 
 }
