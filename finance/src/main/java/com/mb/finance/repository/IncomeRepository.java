@@ -11,6 +11,8 @@ import com.mb.finance.entities.Income;
 
 @Repository
 public interface IncomeRepository extends JpaRepository<Income, String> {
+	
+	Income existsByIdAndUserId(String Ud, String userId);
 
     List<Income> findByUserIdAndIncomeTypeNotInOrderByIncomeDateDesc(String userId, List<IncomeType> incomeTypes);
 

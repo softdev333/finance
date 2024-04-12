@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.mb.finance.config.ExpenseType;
 import com.mb.finance.entities.Expense;
+import com.mb.finance.entities.Income;
 
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, String> {

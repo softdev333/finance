@@ -2,8 +2,10 @@ package com.mb.finance.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -78,9 +80,26 @@ public class IncomeService {
 		return result;
 	}
 
-	public Boolean deleteIncome(Income income) {
+	public void deleteIncome(Income income) {
 		incomeRepository.delete(income);
-		return true;
+	}
+
+	public List<Income> deleteIncome(String userId, List<String> ids) throws Exception {
+		List<Income> incomeList = new ArrayList<>();
+		
+		for (String id : ids) {
+			Income income = incomeRepository.findById(id).get();
+			if (Objects.isNull(income)) {
+				throw new Exception("Id from provided list doesnt belong to the provided User");
+			}
+			else 
+			{
+				incomeList.add(income);
+			}
+		}
+		incomeRepository.deleteAllById(ids);
+		
+		return incomeList;
 	}
 
 	public void saveAllIncome(List<Income> incomeList) {

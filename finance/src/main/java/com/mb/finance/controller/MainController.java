@@ -14,12 +14,14 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mb.finance.config.ConversionRequest;
 import com.mb.finance.config.ExpenseDto;
 import com.mb.finance.config.IncomeDto;
 import com.mb.finance.config.UserRegistrationDto;
@@ -109,6 +111,16 @@ public class MainController {
 		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
 	}
 
+	@PostMapping("/convert")
+	public ResponseEntity<Map<String, Object>> conversion(@RequestBody ConversionRequest conversionRequest)
+			throws Exception {
+		userService.convert(conversionRequest);
+
+		Map<String, Object> responseMap = new HashMap<String, Object>();
+		responseMap.put("message", "convert successful");
+		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
+	}
+
 	@GetMapping("/user/expense/all")
 	public ResponseEntity<Map<String, Object>> getAllExpense(@RequestParam String userId) throws Exception {
 		List<Expense> expenses = expenseService.getExpensesByUserId(userId);
@@ -153,7 +165,7 @@ public class MainController {
 		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
 	}
 
-	@PostMapping("/user/bankaccount")
+	@GetMapping("/user/bankaccount")
 	public ResponseEntity<Map<String, Object>> getBankAccount(@RequestParam String userId,
 			@RequestBody Map<String, Object> requestMap) throws Exception {
 
@@ -165,6 +177,14 @@ public class MainController {
 		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
 	}
 
+	@GetMapping("/user/balance/current-month")
+	public ResponseEntity<Map<String, Object>> GetCurrentTotalBalance(@RequestParam String userId) throws Exception {
+		Map<String, Object> responseMap = new HashMap<String, Object>();
+		BigDecimal currentMonthTotalBalance = userService.getBalanceCurrentMonth(userId);
+		responseMap.put("balance", currentMonthTotalBalance);
+		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
+	}
+
 	@GetMapping("/generate/db/key")
 	public ResponseEntity<String> generateDBKey() {
 		String generatedKeyString = "";
@@ -173,7 +193,7 @@ public class MainController {
 			// Create a KeyGenerator instance for AES
 			KeyGenerator keyGen = KeyGenerator.getInstance("AES");
 
-			// Generate a random AES key with the desired key size (e.g., 256 bits)
+			// Generate a random AES key with the desired key size (e.g., 128 bits)
 			keyGen.init(256); // Specify the key size here
 			SecretKey secretKey = keyGen.generateKey();
 
@@ -187,6 +207,22 @@ public class MainController {
 		}
 
 		return ResponseEntity.ok(generatedKeyString);
+	}
+
+	@DeleteMapping("/user")
+	public ResponseEntity<Map<String, Object>> deleteIncomeOrExpense(@RequestBody Map<String, Object> requestMap)
+			throws Exception {
+		String userId = (String) requestMap.get("userId");
+		String transactionType = (String) requestMap.get("transactionType");
+		if ("expense".equals(transactionType)) {
+			userService.deleteExpense(userId, requestMap);
+		} else if ("income".equals(transactionType)) {
+			userService.deleteIncome(userId, requestMap);
+		}
+
+		Map<String, Object> responseMap = new HashMap<String, Object>();
+		responseMap.put("message", "delete successful");
+		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
 	}
 
 }

@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mb.finance.config.ExpenseType;
 import com.mb.finance.entities.Expense;
+import com.mb.finance.entities.Income;
 import com.mb.finance.repository.ExpenseRepository;
 
 @Service
@@ -110,6 +113,24 @@ public class ExpenseService {
 		long daysBetween = ChronoUnit.DAYS.between(start, currentDate) + 1;
 
 		return resultBigDecimal.divide(new BigDecimal(daysBetween), 2, RoundingMode.HALF_DOWN);
+	}
+	
+	public List<Expense> deleteExpense(String userId, List<String> ids) throws Exception {
+		List<Expense> expenses = new ArrayList<>();
+		List<Expense> expenses2 = expenseRepository.findAll();
+		for (String id : ids) {
+			Expense expense = expenseRepository.findById(id).get();
+			if (Objects.isNull(expense)) {
+				throw new Exception("Id from provided list doesnt belong to the provided User");
+			}
+			else 
+			{
+				expenses.add(expense);
+			}
+		}
+		expenseRepository.deleteAllById(ids);
+		
+		return expenses;
 	}
 
 }

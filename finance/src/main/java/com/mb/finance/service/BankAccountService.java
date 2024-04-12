@@ -18,6 +18,10 @@ public class BankAccountService {
 		return bankAccountRepository.save(bankAccount);
 	}
 
+	public List<BankAccount> saveBankAccounts(List<BankAccount> bankAccounts) {
+		return bankAccountRepository.saveAll(bankAccounts);
+	}
+
 	public List<BankAccount> getAllAccountsForUserId(String userId) {
 		return bankAccountRepository.findByUserId(userId);
 	}
