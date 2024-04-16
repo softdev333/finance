@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mb.finance.config.ExpenseType;
 import com.mb.finance.entities.Expense;
-import com.mb.finance.entities.Income;
 import com.mb.finance.repository.ExpenseRepository;
 
 @Service
@@ -58,19 +57,10 @@ public class ExpenseService {
 
 	public BigDecimal getAllExpensesForCurrentMonthForUser(String userId, LocalDate currentDate) {
 
-		List<ExpenseType> expenseTypesToExclude = Arrays.asList(ExpenseType.CONVERSION);
-		LocalDate start = currentDate.withDayOfMonth(1);
-		LocalDate end = currentDate.withDayOfMonth(currentDate.getMonth().length(currentDate.isLeapYear()));
-		List<Expense> expenses = expenseRepository.findByUserIdAndExpenseTypeNotInAndExpenseDateBetween(userId,
-				expenseTypesToExclude, start, end);
+		List<ExpenseType> emptyList = new ArrayList<>();
+		BigDecimal result = getExpensesForCurrentMonthExcept(userId, currentDate, emptyList);
 
-		BigDecimal resultBigDecimal = BigDecimal.ZERO;
-
-		for (Expense expense : expenses) {
-			resultBigDecimal = resultBigDecimal.add(expense.getAmount());
-		}
-
-		return resultBigDecimal;
+		return result;
 	}
 
 	public BigDecimal getTotalExpenseByUserId(String userId) {
@@ -114,7 +104,7 @@ public class ExpenseService {
 
 		return resultBigDecimal.divide(new BigDecimal(daysBetween), 2, RoundingMode.HALF_DOWN);
 	}
-	
+
 	public List<Expense> deleteExpense(String userId, List<String> ids) throws Exception {
 		List<Expense> expenses = new ArrayList<>();
 		List<Expense> expenses2 = expenseRepository.findAll();
@@ -122,15 +112,32 @@ public class ExpenseService {
 			Expense expense = expenseRepository.findById(id).get();
 			if (Objects.isNull(expense)) {
 				throw new Exception("Id from provided list doesnt belong to the provided User");
-			}
-			else 
-			{
+			} else {
 				expenses.add(expense);
 			}
 		}
 		expenseRepository.deleteAllById(ids);
-		
+
 		return expenses;
+	}
+
+	public BigDecimal getExpensesForCurrentMonthExcept(String userId, LocalDate currentDate,
+			List<ExpenseType> expenseTypes) {
+
+		expenseTypes.add(ExpenseType.CONVERSION);
+		LocalDate start = currentDate.withDayOfMonth(1);
+		LocalDate end = currentDate.withDayOfMonth(currentDate.getMonth().length(currentDate.isLeapYear()));
+		List<Expense> expenses = expenseRepository.findByUserIdAndExpenseTypeNotInAndExpenseDateBetween(userId,
+				expenseTypes, start, end);
+
+		BigDecimal resultBigDecimal = BigDecimal.ZERO;
+
+		for (Expense expense : expenses) {
+			resultBigDecimal = resultBigDecimal.add(expense.getAmount());
+		}
+
+		return resultBigDecimal;
+
 	}
 
 }

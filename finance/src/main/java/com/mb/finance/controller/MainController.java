@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mb.finance.config.ConversionRequest;
 import com.mb.finance.config.ExpenseDto;
+import com.mb.finance.config.ExpenseType;
 import com.mb.finance.config.IncomeDto;
 import com.mb.finance.config.UserRegistrationDto;
 import com.mb.finance.entities.BankAccount;
@@ -134,6 +136,20 @@ public class MainController {
 		return new ResponseEntity<BigDecimal>(
 				expenseService.getAllExpensesForCurrentMonthForUser(userId, LocalDate.now()),
 				HttpStatusCode.valueOf(200));
+	}
+
+	@PostMapping("/user/expense/exclude/current-month")
+	public ResponseEntity<BigDecimal> getAllExpenseCurrentMonthExcept(@RequestParam String userId,
+			@RequestBody Map<String, Object> requestMap) throws Exception {
+
+		List<String> expenseTypeString = (List<String>) requestMap.get("exclude");
+
+		List<ExpenseType> expenseTypes = expenseTypeString.stream().map(ExpenseType::valueOf)
+				.collect(Collectors.toList());
+		
+		BigDecimal expense = expenseService.getExpensesForCurrentMonthExcept(userId, LocalDate.now(), expenseTypes);
+
+		return new ResponseEntity<BigDecimal>(expense, HttpStatusCode.valueOf(200));
 	}
 
 	@GetMapping("/user/expense/total")
