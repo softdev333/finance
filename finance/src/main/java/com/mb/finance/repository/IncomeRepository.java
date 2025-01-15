@@ -1,5 +1,6 @@
 package com.mb.finance.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -17,5 +18,7 @@ public interface IncomeRepository extends JpaRepository<Income, String> {
     List<Income> findByUserIdAndIncomeTypeNotInOrderByIncomeDateDesc(String userId, List<IncomeType> incomeTypes);
 
     List<Income> findByUserIdAndIncomeTypeNotInOrderByIncomeDateDesc(String userId, List<IncomeType> incomeTypes, Pageable pageable);
+
+	List<Income> findByUserIdAndIncomeDateBetween(String userId, LocalDate start, LocalDate end);
 
 }

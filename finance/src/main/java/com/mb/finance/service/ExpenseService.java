@@ -107,7 +107,6 @@ public class ExpenseService {
 
 	public List<Expense> deleteExpense(String userId, List<String> ids) throws Exception {
 		List<Expense> expenses = new ArrayList<>();
-		List<Expense> expenses2 = expenseRepository.findAll();
 		for (String id : ids) {
 			Expense expense = expenseRepository.findById(id).get();
 			if (Objects.isNull(expense)) {

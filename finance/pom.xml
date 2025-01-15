@@ -14,8 +14,10 @@
 	<version>1.0</version>
 	<name>finance</name>
 	<description>Demo project for Spring Boot</description>
+
 	<properties>
 		<java.version>17</java.version>
+		<!-- <mainClass>SheetsQuickstart</mainClass>-->
 	</properties>
 	<dependencies>
 		<dependency>
@@ -57,6 +59,23 @@
 			<groupId>jakarta.xml.bind</groupId>
 			<artifactId>jakarta.xml.bind-api</artifactId>
 			<version>4.0.0</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.oauth-client</groupId>
+			<artifactId>google-oauth-client-jetty</artifactId>
+			<version>1.34.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-sheets</artifactId>
+			<version>v4-rev20220927-2.0.0</version>
 		</dependency>
 
 

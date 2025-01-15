@@ -86,23 +86,35 @@ public class IncomeService {
 
 	public List<Income> deleteIncome(String userId, List<String> ids) throws Exception {
 		List<Income> incomeList = new ArrayList<>();
-		
+
 		for (String id : ids) {
 			Income income = incomeRepository.findById(id).get();
 			if (Objects.isNull(income)) {
 				throw new Exception("Id from provided list doesnt belong to the provided User");
-			}
-			else 
-			{
+			} else {
 				incomeList.add(income);
 			}
 		}
 		incomeRepository.deleteAllById(ids);
-		
+
 		return incomeList;
 	}
 
 	public void saveAllIncome(List<Income> incomeList) {
 		incomeRepository.saveAll(incomeList);
+	}
+
+	public BigDecimal getAllIncomeForCurrentMonth(String userId, LocalDate currentDate) {
+		LocalDate start = currentDate.withDayOfMonth(1);
+		LocalDate end = currentDate.withDayOfMonth(currentDate.getMonth().length(currentDate.isLeapYear()));
+		List<Income> incomes = incomeRepository.findByUserIdAndIncomeDateBetween(userId, start, end);
+
+		BigDecimal resultBigDecimal = BigDecimal.ZERO;
+
+		for (Income income : incomes) {
+			resultBigDecimal = resultBigDecimal.add(income.getAmount());
+		}
+
+		return resultBigDecimal;
 	}
 }

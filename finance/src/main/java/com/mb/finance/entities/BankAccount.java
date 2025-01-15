@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -37,6 +38,12 @@ public class BankAccount {
 
 	@Column(name = "LAST_MODIFIED_DATE")
 	LocalDate lastModifiedDate;
+	
+	@PrePersist
+	public void beforePersist()
+	{
+		this.lastModifiedDate = LocalDate.now();
+	}
 
 	public String getId() {
 		return id;

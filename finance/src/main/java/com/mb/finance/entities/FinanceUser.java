@@ -4,6 +4,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.time.LocalDate;
 import java.util.Base64;
 
 import javax.crypto.SecretKeyFactory;
@@ -14,6 +15,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -41,6 +43,20 @@ public class FinanceUser {
 
 	@Column(name = "PASSWORD_SALT")
 	String passwordSalt;
+	
+	@Column(name = "CREATION_DATE")
+	LocalDate creationDate;
+
+	@Column(name = "LAST_MODIFIED_DATE")
+	LocalDate lastModifiedDate;
+	
+	@PrePersist
+	public void beforePersist()
+	{
+		this.lastModifiedDate = LocalDate.now();
+	}
+	
+	
 
 	public Long getId() {
 		return id;
@@ -80,6 +96,22 @@ public class FinanceUser {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+	
+	public LocalDate getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(LocalDate creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public LocalDate getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(LocalDate lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
 	}
 
 	public void setPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {

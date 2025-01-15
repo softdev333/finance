@@ -1,6 +1,8 @@
 package com.mb.finance.service;
 
 import java.math.BigDecimal;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +21,7 @@ import com.mb.finance.config.ExpenseDto;
 import com.mb.finance.config.ExpenseType;
 import com.mb.finance.config.IncomeDto;
 import com.mb.finance.config.IncomeType;
+import com.mb.finance.config.LoginDto;
 import com.mb.finance.config.Occurance;
 import com.mb.finance.entities.BankAccount;
 import com.mb.finance.entities.Expense;
@@ -49,10 +52,18 @@ public class UserService {
 		bankAccount.setUserId(user.getUserId());
 		bankAccount.setBankName("CASH");
 		bankAccount.setBalance(BigDecimal.ZERO);
-
+		bankAccount.setCreationDate(LocalDate.now());
 		bankAccountService.saveBankAccount(bankAccount);
 
 		return financeUser;
+	}
+
+	public Boolean login(LoginDto request) throws NoSuchAlgorithmException, InvalidKeySpecException {
+		Long id = financeUserService.authenticate(request.getUserId(), request.getPassword());
+		if (id != null) {
+			return true;
+		}
+		return null;
 	}
 
 	@Transactional
@@ -249,4 +260,16 @@ public class UserService {
 
 	}
 
+	public BigDecimal getTotalBalance(String userId) {
+
+		BigDecimal totalIncome = BigDecimal.ZERO;
+
+		List<BankAccount> bankAccountList = bankAccountService.getAllAccountsForUserId(userId);
+		for (BankAccount bankAccount : bankAccountList) {
+			totalIncome = totalIncome.add(bankAccount.getBalance());
+		}
+
+		return totalIncome;
+
+	}
 }

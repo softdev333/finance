@@ -1,5 +1,6 @@
 package com.mb.finance.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ public class BankAccountService {
 	BankAccountRepository bankAccountRepository;
 
 	public BankAccount saveBankAccount(BankAccount bankAccount) {
+		bankAccount.setCreationDate(LocalDate.now());
 		return bankAccountRepository.save(bankAccount);
 	}
 

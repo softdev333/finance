@@ -15,6 +15,7 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,7 @@ import com.mb.finance.config.ConversionRequest;
 import com.mb.finance.config.ExpenseDto;
 import com.mb.finance.config.ExpenseType;
 import com.mb.finance.config.IncomeDto;
+import com.mb.finance.config.LoginDto;
 import com.mb.finance.config.UserRegistrationDto;
 import com.mb.finance.entities.BankAccount;
 import com.mb.finance.entities.Expense;
@@ -40,6 +42,7 @@ import com.mb.finance.service.UserService;
 import jakarta.xml.bind.DatatypeConverter;
 
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class MainController {
 
 	@Autowired
@@ -75,6 +78,30 @@ public class MainController {
 
 	}
 
+	@PostMapping("/login")
+	public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto request)
+			throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+		Boolean loginSuccesssful = userService.login(request);
+
+		Map<String, Object> response = new HashMap<String, Object>();
+		FinanceUser user = financeUserService.getUserByUserId(request.getUserId()).get();
+		response.put("firstName", user.getFirstName());
+		response.put("lastName", user.getLastName());
+		response.put("userId", user.getUserId());
+		response.put("email", user.getEmail());
+
+		Map<String, Object> responseMap = new HashMap<String, Object>();
+		if (loginSuccesssful != null) {
+			responseMap.put("message", "login successful");
+			return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
+		} else {
+			responseMap.put("message", "login unsuccessful");
+			return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(401));
+		}
+
+	}
+
 	@GetMapping("/user")
 	public ResponseEntity<Map<String, Object>> getUserProfile(@RequestParam String userId) {
 		Map<String, Object> response = new HashMap<String, Object>();
@@ -104,6 +131,14 @@ public class MainController {
 		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
 	}
 
+	@GetMapping("/user/income/current-month")
+	public ResponseEntity<BigDecimal> getAllIncomeCurrentMonth(@RequestParam String userId) throws Exception {
+
+		BigDecimal incomeCurrentMonth = incomeService.getAllIncomeForCurrentMonth(userId, LocalDate.now());
+
+		return new ResponseEntity<BigDecimal>(incomeCurrentMonth, HttpStatusCode.valueOf(200));
+	}
+
 	@PostMapping("/expense")
 	public ResponseEntity<Map<String, Object>> saveExpense(@RequestBody ExpenseDto expenseDto) throws Exception {
 		userService.addExpense(expenseDto);
@@ -123,12 +158,19 @@ public class MainController {
 		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
 	}
 
+	/*
+	 * @GetMapping("/user/expense/all") public ResponseEntity<Map<String, Object>>
+	 * getAllExpense(@RequestParam String userId) throws Exception { List<Expense>
+	 * expenses = expenseService.getExpensesByUserId(userId); Map<String, Object>
+	 * responseMap = new HashMap<String, Object>(); responseMap.put("expenses",
+	 * expenses); return new ResponseEntity<Map<String, Object>>(responseMap,
+	 * HttpStatusCode.valueOf(200)); }
+	 */
+
 	@GetMapping("/user/expense/all")
-	public ResponseEntity<Map<String, Object>> getAllExpense(@RequestParam String userId) throws Exception {
+	public ResponseEntity<List<Expense>> getAllExpense(@RequestParam String userId) throws Exception {
 		List<Expense> expenses = expenseService.getExpensesByUserId(userId);
-		Map<String, Object> responseMap = new HashMap<String, Object>();
-		responseMap.put("expenses", expenses);
-		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
+		return new ResponseEntity<List<Expense>>(expenses, HttpStatusCode.valueOf(200));
 	}
 
 	@GetMapping("/user/expense/current-month")
@@ -138,7 +180,7 @@ public class MainController {
 				HttpStatusCode.valueOf(200));
 	}
 
-	@PostMapping("/user/expense/exclude/current-month")
+	@PostMapping("/user/expense/current-month/exclude")
 	public ResponseEntity<BigDecimal> getAllExpenseCurrentMonthExcept(@RequestParam String userId,
 			@RequestBody Map<String, Object> requestMap) throws Exception {
 
@@ -146,7 +188,7 @@ public class MainController {
 
 		List<ExpenseType> expenseTypes = expenseTypeString.stream().map(ExpenseType::valueOf)
 				.collect(Collectors.toList());
-		
+
 		BigDecimal expense = expenseService.getExpensesForCurrentMonthExcept(userId, LocalDate.now(), expenseTypes);
 
 		return new ResponseEntity<BigDecimal>(expense, HttpStatusCode.valueOf(200));
@@ -155,12 +197,6 @@ public class MainController {
 	@GetMapping("/user/expense/total")
 	public ResponseEntity<BigDecimal> getTotalExpense(@RequestParam String userId) throws Exception {
 		return new ResponseEntity<BigDecimal>(expenseService.getTotalExpenseByUserId(userId),
-				HttpStatusCode.valueOf(200));
-	}
-
-	@GetMapping("/user/expense/average-current-month")
-	public ResponseEntity<BigDecimal> getAverageExpenseCurrentMonth(@RequestParam String userId) throws Exception {
-		return new ResponseEntity<BigDecimal>(expenseService.getAverageMonthlySpend(userId, LocalDate.now()),
 				HttpStatusCode.valueOf(200));
 	}
 
@@ -181,7 +217,7 @@ public class MainController {
 		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
 	}
 
-	@GetMapping("/user/bankaccount")
+	@PostMapping("/user/bankaccount")
 	public ResponseEntity<Map<String, Object>> getBankAccount(@RequestParam String userId,
 			@RequestBody Map<String, Object> requestMap) throws Exception {
 
@@ -194,10 +230,18 @@ public class MainController {
 	}
 
 	@GetMapping("/user/balance/current-month")
-	public ResponseEntity<Map<String, Object>> GetCurrentTotalBalance(@RequestParam String userId) throws Exception {
+	public ResponseEntity<Map<String, Object>> getCurrentTotalBalance(@RequestParam String userId) throws Exception {
 		Map<String, Object> responseMap = new HashMap<String, Object>();
 		BigDecimal currentMonthTotalBalance = userService.getBalanceCurrentMonth(userId);
 		responseMap.put("balance", currentMonthTotalBalance);
+		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
+	}
+	
+	@GetMapping("/user/balance")
+	public ResponseEntity<Map<String, Object>> getTotalBalance(@RequestParam String userId) throws Exception {
+		Map<String, Object> responseMap = new HashMap<String, Object>();
+		BigDecimal totalBalance = userService.getTotalBalance(userId);
+		responseMap.put("balance", totalBalance);
 		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
 	}
 

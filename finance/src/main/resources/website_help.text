@@ -1,3 +1,10 @@
+For a credit card account, balance is treated like credit limit, and therefore starts at 1000. The whole flow will be normal. 
+If you pay using credit card, it will be subtracted from the account and when you make payment to credit card, the amount will be 
+added to credit account back to 1000, and subtracted from source account(be it actual account or cash which 
+is treated as an account as well)
+
+
+
 When you create a OAuth account for google account and cloud project, upon running ypur java project, it will give you redirect url which you need to put it on OAuth consent screen:
 
 https://stackoverflow.com/questions/68764885/google-oauth-2-0-api-authentication-error-error-400-redirect-uri-mismatch-do
