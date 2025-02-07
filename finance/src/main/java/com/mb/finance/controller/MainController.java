@@ -15,6 +15,11 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +32,6 @@ import com.mb.finance.config.ConversionRequest;
 import com.mb.finance.config.ExpenseDto;
 import com.mb.finance.config.ExpenseType;
 import com.mb.finance.config.IncomeDto;
-import com.mb.finance.config.LoginDto;
 import com.mb.finance.config.UserRegistrationDto;
 import com.mb.finance.entities.BankAccount;
 import com.mb.finance.entities.Expense;
@@ -38,6 +42,8 @@ import com.mb.finance.service.ExpenseService;
 import com.mb.finance.service.FinanceUserService;
 import com.mb.finance.service.IncomeService;
 import com.mb.finance.service.UserService;
+import com.mb.finance.websecurity.AuthRequest;
+import com.mb.finance.websecurity.JwtService;
 
 import jakarta.xml.bind.DatatypeConverter;
 
@@ -60,49 +66,78 @@ public class MainController {
 	@Autowired
 	BankAccountService bankAccountService;
 
+	@Autowired
+	private JwtService jwtService;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+
+	//test apis
+	@GetMapping("/welcome")
+	public String welcome() {
+		return "Welcome this endpoint is not secure";
+	}
+
+	//test apis
+	@GetMapping("/user/userProfile")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
+	public String userProfile() {
+		return "Welcome to User Profile";
+	}
+
+	//test apis
+	@GetMapping("/admin/adminProfile")
+	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+	public String adminProfile() {
+		return "Welcome to Admin Profile";
+	}
+
 	@PostMapping("/user")
 	public ResponseEntity<Map<String, Object>> saveUser(@RequestBody UserRegistrationDto request)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
-
-		FinanceUser newUser = new FinanceUser();
-		newUser.setEmail(request.getEmail());
-		newUser.setFirstName(request.getFirstName());
-		newUser.setLastName(request.getLastName());
-		newUser.setUserId(request.getUserId());
-		newUser.setPassword(request.getPassword());
-		userService.saveUser(newUser);
-
+		userService.saveUser(request);
 		Map<String, Object> responseMap = new HashMap<String, Object>();
 		responseMap.put("message", "save successful");
 		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
 
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto request)
-			throws NoSuchAlgorithmException, InvalidKeySpecException {
-
-		Boolean loginSuccesssful = userService.login(request);
-
-		Map<String, Object> response = new HashMap<String, Object>();
-		FinanceUser user = financeUserService.getUserByUserId(request.getUserId()).get();
-		response.put("firstName", user.getFirstName());
-		response.put("lastName", user.getLastName());
-		response.put("userId", user.getUserId());
-		response.put("email", user.getEmail());
-
-		Map<String, Object> responseMap = new HashMap<String, Object>();
-		if (loginSuccesssful != null) {
-			responseMap.put("message", "login successful");
-			return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
+	@PostMapping("/generateToken")
+	public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+		if (authentication.isAuthenticated()) {
+			return jwtService.generateToken(authRequest.getUsername());
 		} else {
-			responseMap.put("message", "login unsuccessful");
-			return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(401));
+			throw new UsernameNotFoundException("Invalid user request!");
 		}
-
 	}
 
+	/*
+	 * @PostMapping("/login") public ResponseEntity<Map<String, Object>>
+	 * login(@RequestBody LoginDto request) throws NoSuchAlgorithmException,
+	 * InvalidKeySpecException {
+	 * 
+	 * Boolean loginSuccesssful = userService.login(request);
+	 * 
+	 * Map<String, Object> response = new HashMap<String, Object>(); FinanceUser
+	 * user = financeUserService.getUserByUserId(request.getUserId()).get();
+	 * response.put("firstName", user.getFirstName()); response.put("lastName",
+	 * user.getLastName()); response.put("userId", user.getUserId());
+	 * response.put("email", user.getEmail());
+	 * 
+	 * Map<String, Object> responseMap = new HashMap<String, Object>(); if
+	 * (loginSuccesssful != null) { responseMap.put("message", "login successful");
+	 * return new ResponseEntity<Map<String, Object>>(responseMap,
+	 * HttpStatusCode.valueOf(200)); } else { responseMap.put("message",
+	 * "login unsuccessful"); return new ResponseEntity<Map<String,
+	 * Object>>(responseMap, HttpStatusCode.valueOf(401)); }
+	 * 
+	 * }
+	 */
+
 	@GetMapping("/user")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> getUserProfile(@RequestParam String userId) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		FinanceUser user = financeUserService.getUserByUserId(userId).get();
@@ -115,6 +150,7 @@ public class MainController {
 	}
 
 	@PostMapping("/income")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> saveIncome(@RequestBody IncomeDto incomeDto) throws Exception {
 		userService.addIncome(incomeDto);
 
@@ -124,6 +160,7 @@ public class MainController {
 	}
 
 	@GetMapping("/user/income/all")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> getAllIncome(@RequestParam String userId) throws Exception {
 		List<Income> incomes = incomeService.getAllIncomeByUserId(userId);
 		Map<String, Object> responseMap = new HashMap<String, Object>();
@@ -132,6 +169,7 @@ public class MainController {
 	}
 
 	@GetMapping("/user/income/current-month")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<BigDecimal> getAllIncomeCurrentMonth(@RequestParam String userId) throws Exception {
 
 		BigDecimal incomeCurrentMonth = incomeService.getAllIncomeForCurrentMonth(userId, LocalDate.now());
@@ -140,6 +178,7 @@ public class MainController {
 	}
 
 	@PostMapping("/expense")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> saveExpense(@RequestBody ExpenseDto expenseDto) throws Exception {
 		userService.addExpense(expenseDto);
 
@@ -149,6 +188,7 @@ public class MainController {
 	}
 
 	@PostMapping("/convert")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> conversion(@RequestBody ConversionRequest conversionRequest)
 			throws Exception {
 		userService.convert(conversionRequest);
@@ -168,12 +208,14 @@ public class MainController {
 	 */
 
 	@GetMapping("/user/expense/all")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<List<Expense>> getAllExpense(@RequestParam String userId) throws Exception {
 		List<Expense> expenses = expenseService.getExpensesByUserId(userId);
 		return new ResponseEntity<List<Expense>>(expenses, HttpStatusCode.valueOf(200));
 	}
 
 	@GetMapping("/user/expense/current-month")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<BigDecimal> getAllExpenseCurrentMonth(@RequestParam String userId) throws Exception {
 		return new ResponseEntity<BigDecimal>(
 				expenseService.getAllExpensesForCurrentMonthForUser(userId, LocalDate.now()),
@@ -181,6 +223,7 @@ public class MainController {
 	}
 
 	@PostMapping("/user/expense/current-month/exclude")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<BigDecimal> getAllExpenseCurrentMonthExcept(@RequestParam String userId,
 			@RequestBody Map<String, Object> requestMap) throws Exception {
 
@@ -195,12 +238,14 @@ public class MainController {
 	}
 
 	@GetMapping("/user/expense/total")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<BigDecimal> getTotalExpense(@RequestParam String userId) throws Exception {
 		return new ResponseEntity<BigDecimal>(expenseService.getTotalExpenseByUserId(userId),
 				HttpStatusCode.valueOf(200));
 	}
 
 	@PostMapping("/bankaccount")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> saveBankAccount(@RequestBody BankAccount bankAccount) throws Exception {
 
 		bankAccountService.saveBankAccount(bankAccount);
@@ -210,6 +255,7 @@ public class MainController {
 	}
 
 	@GetMapping("/user/bankaccount/all")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> getAllBankAccount(@RequestParam String userId) throws Exception {
 		List<BankAccount> bankAccounts = bankAccountService.getAllAccountsForUserId(userId);
 		Map<String, Object> responseMap = new HashMap<String, Object>();
@@ -218,6 +264,7 @@ public class MainController {
 	}
 
 	@PostMapping("/user/bankaccount")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> getBankAccount(@RequestParam String userId,
 			@RequestBody Map<String, Object> requestMap) throws Exception {
 
@@ -230,14 +277,16 @@ public class MainController {
 	}
 
 	@GetMapping("/user/balance/current-month")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> getCurrentTotalBalance(@RequestParam String userId) throws Exception {
 		Map<String, Object> responseMap = new HashMap<String, Object>();
 		BigDecimal currentMonthTotalBalance = userService.getBalanceCurrentMonth(userId);
 		responseMap.put("balance", currentMonthTotalBalance);
 		return new ResponseEntity<Map<String, Object>>(responseMap, HttpStatusCode.valueOf(200));
 	}
-	
+
 	@GetMapping("/user/balance")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> getTotalBalance(@RequestParam String userId) throws Exception {
 		Map<String, Object> responseMap = new HashMap<String, Object>();
 		BigDecimal totalBalance = userService.getTotalBalance(userId);
@@ -270,6 +319,7 @@ public class MainController {
 	}
 
 	@DeleteMapping("/user")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ResponseEntity<Map<String, Object>> deleteIncomeOrExpense(@RequestBody Map<String, Object> requestMap)
 			throws Exception {
 		String userId = (String) requestMap.get("userId");

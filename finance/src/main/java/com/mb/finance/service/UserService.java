@@ -21,8 +21,8 @@ import com.mb.finance.config.ExpenseDto;
 import com.mb.finance.config.ExpenseType;
 import com.mb.finance.config.IncomeDto;
 import com.mb.finance.config.IncomeType;
-import com.mb.finance.config.LoginDto;
 import com.mb.finance.config.Occurance;
+import com.mb.finance.config.UserRegistrationDto;
 import com.mb.finance.entities.BankAccount;
 import com.mb.finance.entities.Expense;
 import com.mb.finance.entities.FinanceUser;
@@ -44,12 +44,22 @@ public class UserService {
 	ExpenseService expenseService;
 
 	@Transactional
-	public FinanceUser saveUser(FinanceUser user) {
-		FinanceUser financeUser = financeUserService.saveFinanceUser(user);
+	public FinanceUser saveUser(UserRegistrationDto userRegistrationDto)
+			throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+		FinanceUser newUser = new FinanceUser();
+		newUser.setEmail(userRegistrationDto.getEmail());
+		newUser.setFirstName(userRegistrationDto.getFirstName());
+		newUser.setLastName(userRegistrationDto.getLastName());
+		newUser.setUserId(userRegistrationDto.getUserId());
+		newUser.setPassword(userRegistrationDto.getPassword());
+		newUser.setRoles("ROLE_USER");
+
+		FinanceUser financeUser = financeUserService.saveFinanceUser(newUser);
 
 		BankAccount bankAccount = new BankAccount();
 		bankAccount.setAccountNumber("CASH");
-		bankAccount.setUserId(user.getUserId());
+		bankAccount.setUserId(newUser.getUserId());
 		bankAccount.setBankName("CASH");
 		bankAccount.setBalance(BigDecimal.ZERO);
 		bankAccount.setCreationDate(LocalDate.now());
@@ -58,13 +68,12 @@ public class UserService {
 		return financeUser;
 	}
 
-	public Boolean login(LoginDto request) throws NoSuchAlgorithmException, InvalidKeySpecException {
-		Long id = financeUserService.authenticate(request.getUserId(), request.getPassword());
-		if (id != null) {
-			return true;
-		}
-		return null;
-	}
+	/*
+	 * public Boolean login(LoginDto request) throws NoSuchAlgorithmException,
+	 * InvalidKeySpecException { Long id =
+	 * financeUserService.authenticate(request.getUserId(), request.getPassword());
+	 * if (id != null) { return true; } return null; }
+	 */
 
 	@Transactional
 	public void addIncome(IncomeDto incomeDto) throws Exception {

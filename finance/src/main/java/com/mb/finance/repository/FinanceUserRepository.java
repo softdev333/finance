@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.mb.finance.entities.FinanceUser;
 
 @Repository
-public interface UserRepository extends JpaRepository<FinanceUser, String> {
+public interface FinanceUserRepository extends JpaRepository<FinanceUser, String> {
 
 	Optional<FinanceUser> findById(String id);
 
